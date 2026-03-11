@@ -2,6 +2,13 @@ const express = require('express');
 const cors = require('cors');
 const { MongoClient } = require('mongodb');
 const nodemailer = require('nodemailer');
+const dns = require('dns');
+
+// Force Node.js to prefer IPv4 over IPv6. 
+// This fixes the ENETUNREACH error on networks like Render.
+if (dns.setDefaultResultOrder) {
+  dns.setDefaultResultOrder('ipv4first');
+}
 
 const app = express();
 app.use(cors({
@@ -20,8 +27,8 @@ app.use((req, res, next) => {
 // Nodemailer configuration
 const transporter = nodemailer.createTransport({
   host: 'smtp.gmail.com',
-  port: 587,
-  secure: false, 
+  port: 465,
+  secure: true, // use SSL for port 465
   auth: {
     user: process.env.GMAIL_USER,
     pass: process.env.GMAIL_PASS
@@ -29,7 +36,6 @@ const transporter = nodemailer.createTransport({
   tls: {
     rejectUnauthorized: false
   },
-  family: 4, // Force IPv4 to avoid ENETUNREACH on IPv6
   connectionTimeout: 10000,
   greetingTimeout: 10000,
   socketTimeout: 10000
