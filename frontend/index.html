@@ -1921,17 +1921,10 @@ select, input { font-family: 'Instrument Sans', sans-serif; }
 </style>
 
 <script>
-// ════════════════════════════════════════════════
-//  API CONFIGURATION
-// ════════════════════════════════════════════════
-// Auto-detect if running on localhost or production
 const BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
   ? 'http://localhost:3000' 
-  : 'https://opdhealthcareee-1.onrender.com';
+  : 'https://opdhealthcareee.onrender.com';
 
-// ════════════════════════════════════════════════
-//  SCREEN MANAGER
-// ════════════════════════════════════════════════
 function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
