@@ -8,14 +8,14 @@ app.use(express.json());
 
 const uri = process.env.MONGODB_URI; 
 
-const client = new MongoClient(uri); // <-- Remove options
+const client = new MongoClient(uri); 
 
-let db; // <-- Declare db globally
+let db; 
 
 async function connectDB() {
   try {
     await client.connect();
-    db = client.db(); // <-- Assign db after connecting
+    db = client.db();
     console.log('Connected to MongoDB Atlas');
   } catch (err) {
     console.error('MongoDB connection error:', err);
