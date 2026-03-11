@@ -3374,7 +3374,7 @@ function closeBookingModal(e) {
 // ════════════════════════════════════════════════
 //  INQUIRY
 // ════════════════════════════════════════════════
-async function submitInquiry() {
+function submitInquiry() {
   const name  = document.getElementById('inqName').value.trim();
   const email = document.getElementById('inqEmail').value.trim();
   const msg   = document.getElementById('inqMsg').value.trim();
@@ -3384,48 +3384,19 @@ async function submitInquiry() {
     return; 
   }
 
-  const btn = event.target;
-  const originalText = btn.innerText;
-  btn.disabled = true;
-  btn.innerText = 'Sending...';
+  const designatedGmail = "jmgedyyy@gmail.com";
+  const subject = encodeURIComponent(`OPD Inquiry from ${name}`);
+  const body = encodeURIComponent(`Name: ${name}\nEmail: ${email}\n\nMessage:\n${msg}`);
+  
+  // Open default email client
+  window.location.href = `mailto:${designatedGmail}?subject=${subject}&body=${body}`;
 
-  try {
-    const response = await fetch(BASE_URL + '/api/inquiry', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, email, msg })
-    });
-
-    if (response.ok) {
-      const result = await response.json();
-      alert(`✅ Thank you, ${name}! Your inquiry has been sent directly to our team.`);
-      // Clear fields
-      document.getElementById('inqName').value  = '';
-      document.getElementById('inqEmail').value = '';
-      document.getElementById('inqMsg').value   = '';
-    } else {
-      // If the response is not ok (e.g. 404), don't try to parse as JSON if it's not JSON
-      let errorMsg = 'Failed to send inquiry';
-      const contentType = response.headers.get("content-type");
-      if (contentType && contentType.indexOf("application/json") !== -1) {
-        const result = await response.json();
-        errorMsg = result.message || errorMsg;
-      }
-      throw new Error(errorMsg);
-    }
-  } catch (error) {
-    console.error('Inquiry error:', error);
-    alert('❌ Sorry, we encountered an error. Please try again later or use the mailto fallback.');
-    
-    // Fallback to mailto if API fails
-    const designatedGmail = "jmgedyyy@gmail.com";
-    const subject = encodeURIComponent(`OPD Inquiry from ${name}`);
-    const body = encodeURIComponent(`Name: ${name}\nEmail: ${email}\n\nMessage:\n${msg}`);
-    window.location.href = `mailto:${designatedGmail}?subject=${subject}&body=${body}`;
-  } finally {
-    btn.disabled = false;
-    btn.innerText = originalText;
-  }
+  alert(`✅ Thank you, ${name}! Your email client has been opened to send your inquiry.`);
+  
+  // Clear fields
+  document.getElementById('inqName').value  = '';
+  document.getElementById('inqEmail').value = '';
+  document.getElementById('inqMsg').value   = '';
 }
 
 // ════════════════════════════════════════════════

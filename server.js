@@ -1,14 +1,6 @@
 const express = require('express');
 const cors = require('cors');
 const { MongoClient } = require('mongodb');
-const nodemailer = require('nodemailer');
-const dns = require('dns');
-
-// Force Node.js to prefer IPv4 over IPv6. 
-// This fixes the ENETUNREACH error on networks like Render.
-if (dns.setDefaultResultOrder) {
-  dns.setDefaultResultOrder('ipv4first');
-}
 
 const app = express();
 app.use(cors({
@@ -25,29 +17,6 @@ app.use((req, res, next) => {
 });
 
 // Nodemailer configuration
-const transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: {
-    user: process.env.GMAIL_USER,
-    pass: process.env.GMAIL_PASS
-  }
-});
-
-// Verify transporter on start with detailed logging
-console.log('Checking email configuration...');
-if (!process.env.GMAIL_USER || !process.env.GMAIL_PASS) {
-  console.error('ERROR: GMAIL_USER or GMAIL_PASS is not set in Environment Variables!');
-}
-
-transporter.verify(function(error, success) {
-  if (error) {
-    console.error('Nodemailer verification failed:', error.message);
-    console.log('Note: Render may be blocking SMTP ports on the free tier.');
-  } else {
-    console.log('Nodemailer is ready to send emails');
-  }
-});
-
 const uri = process.env.MONGODB_URI; 
 
 const client = new MongoClient(uri); 
@@ -170,30 +139,6 @@ app.post('/api/queues', async (req, res) => {
   } catch (e) {
     console.error('Error updating queue:', e);
     res.status(500).send(e.message);
-  }
-});
-
-app.post('/api/inquiry', async (req, res) => {
-  const { name, email, msg } = req.body;
-
-  if (!name || !email || !msg) {
-    return res.status(400).json({ message: 'Missing fields' });
-  }
-
-  const mailOptions = {
-    from: process.env.GMAIL_USER, 
-    to: 'jmgedyyy@gmail.com', 
-    subject: `OPD Inquiry from ${name}`,
-    text: `Name: ${name}\nEmail: ${email}\n\nMessage:\n${msg}`,
-    replyTo: email               
-  };
-
-  try {
-    await transporter.sendMail(mailOptions);
-    res.json({ message: 'Inquiry sent successfully' });
-  } catch (error) {
-    console.error('Error sending email:', error);
-    res.status(500).json({ message: 'Failed to send inquiry', error: error.message });
   }
 });
 
