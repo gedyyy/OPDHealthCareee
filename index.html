@@ -1,0 +1,3379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>OPD Smart Care — Outpatient Management System</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700&family=Instrument+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+/* ═══════════════════════════════════════
+   TOKENS
+═══════════════════════════════════════ */
+:root {
+  --slate:       #2d1b22;
+  --slate-mid:   #3d262e;
+  --slate-light: #4d323a;
+  --sage:        #fa4e79;
+  --sage-light:  #ff648b;
+  --sage-pale:   #fff0f3;
+  --amber:       #e8943a;
+  --amber-pale:  #fef3e7;
+  --rose:        #e11d48;
+  --rose-pale:   #fff1f2;
+  --sky:         #fa7697;
+  --sky-pale:    #fff5f7;
+  --white:       #ffffff;
+  --offwhite:    #fdf2f4;
+  --border:      #f1d5dd;
+  --text:        #2d1b22;
+  --text-mid:    #5a3d48;
+  --text-muted:  #9e7a85;
+  --shadow-sm:   0 1px 4px rgba(45,27,34,.07);
+  --shadow-md:   0 4px 16px rgba(45,27,34,.10);
+  --shadow-lg:   0 12px 40px rgba(45,27,34,.14);
+  --radius:      12px;
+  --radius-sm:   8px;
+}
+
+/* ═══════════════════════════════════════
+   RESET & BASE
+═══════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Instrument Sans', sans-serif;
+  background: var(--offwhite);
+  color: var(--text);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+button { font-family: 'Instrument Sans', sans-serif; cursor: pointer; }
+select, input { font-family: 'Instrument Sans', sans-serif; }
+
+/* ═══════════════════════════════════════
+   SCREEN MANAGER
+═══════════════════════════════════════ */
+.screen { display: none; }
+.screen.active { display: block; }
+
+/* ═══════════════════════════════════════
+   ── LOGIN SCREEN ──
+═══════════════════════════════════════ */
+#loginScreen {
+  min-height: 100vh;
+  display: none;
+  grid-template-columns: 1fr 1fr;
+}
+#loginScreen.active { display: grid; }
+
+/* Left panel */
+.login-panel-left {
+  background: var(--slate);
+  position: relative;
+  overflow: hidden;
+  padding: 60px 56px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.login-panel-left::before {
+  content: '';
+  position: absolute;
+  top: -120px; right: -120px;
+  width: 440px; height: 440px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(250,78,121,.35) 0%, transparent 70%);
+  pointer-events: none;
+}
+.login-panel-left::after {
+  content: '';
+  position: absolute;
+  bottom: -80px; left: -80px;
+  width: 320px; height: 320px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(58,85,112,.5) 0%, transparent 70%);
+  pointer-events: none;
+}
+.brand {
+  display: flex; align-items: center; gap: 12px;
+  position: relative; z-index: 1;
+}
+.brand-icon {
+  width: 44px; height: 44px; border-radius: 10px;
+  background: linear-gradient(135deg, var(--sage), var(--sage-light));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.3rem;
+  box-shadow: 0 4px 12px rgba(250,78,121,.4);
+}
+.brand-name {
+  font-family: 'Syne', sans-serif;
+  font-size: 1.5rem; font-weight: 700;
+  color: white;
+}
+.brand-name span { color: var(--sage-light); }
+
+.login-hero {
+  position: relative; z-index: 1;
+}
+.login-hero h1 {
+  font-family: 'Syne', sans-serif;
+  font-size: 2.8rem; line-height: 1.15;
+  color: white; margin-bottom: 16px;
+  font-weight: 700;
+}
+.login-hero h1 em {
+  font-style: normal;
+  color: var(--sage-light);
+}
+.login-hero p {
+  color: rgba(255,255,255,.6);
+  font-size: .95rem; line-height: 1.7;
+  max-width: 360px;
+}
+
+.login-stats {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  position: relative; z-index: 1;
+}
+.login-stat {
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: var(--radius);
+  padding: 18px 20px;
+}
+.login-stat .num {
+  font-family: 'Syne', sans-serif;
+  font-size: 1.8rem; color: var(--sage-light);
+  font-weight: 700; line-height: 1;
+}
+.login-stat .lbl {
+  font-size: .78rem; color: rgba(255,255,255,.5);
+  margin-top: 4px;
+}
+
+/* Right panel */
+.login-panel-right {
+  background: var(--white);
+  padding: 60px 56px;
+  display: flex; flex-direction: column;
+  justify-content: center;
+}
+.login-form-wrap { max-width: 400px; }
+.login-form-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 1.9rem; font-weight: 700;
+  margin-bottom: 6px;
+}
+.login-form-sub {
+  color: var(--text-muted);
+  font-size: .88rem; margin-bottom: 32px;
+}
+
+/* Role selector */
+.role-toggle {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 8px; margin-bottom: 24px;
+}
+.role-btn {
+  padding: 12px;
+  border: 2px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--offwhite);
+  color: var(--text-mid);
+  font-size: .9rem; font-weight: 500;
+  transition: all .2s;
+  display: flex; align-items: center;
+  justify-content: center; gap: 8px;
+}
+.role-btn:hover { border-color: var(--sage); color: var(--sage); }
+.role-btn.active {
+  border-color: var(--sage);
+  background: var(--sage-pale);
+  color: var(--sage);
+  font-weight: 600;
+}
+
+/* Form elements */
+.f-group { margin-bottom: 18px; }
+.f-group label {
+  display: block;
+  font-size: .78rem; font-weight: 600;
+  color: var(--text-mid);
+  letter-spacing: .06em; text-transform: uppercase;
+  margin-bottom: 7px;
+}
+.f-group input,
+.f-group select {
+  width: 100%;
+  padding: 11px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: .92rem;
+  color: var(--text);
+  background: var(--white);
+  transition: border-color .2s, box-shadow .2s;
+  appearance: none;
+}
+.f-group input:focus,
+.f-group select:focus {
+  outline: none;
+  border-color: var(--sage);
+  box-shadow: 0 0 0 3px rgba(250,78,121,.12);
+}
+.f-group input::placeholder { color: var(--text-muted); }
+.select-wrap { position: relative; }
+.select-wrap::after {
+  content: '▾';
+  position: absolute; right: 14px; top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted); pointer-events: none;
+  font-size: .8rem;
+}
+.select-wrap select { padding-right: 36px; }
+
+.dept-row { display: none; }
+.dept-row.show { display: block; }
+
+.f-error {
+  background: var(--rose-pale);
+  border: 1px solid rgba(217,91,91,.3);
+  color: var(--rose);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  font-size: .84rem;
+  margin-bottom: 16px;
+  display: none;
+}
+
+.btn-signin {
+  width: 100%;
+  background: linear-gradient(135deg, var(--sage), var(--sage-light));
+  color: white;
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 13px;
+  font-size: .95rem; font-weight: 600;
+  letter-spacing: .02em;
+  transition: opacity .2s, transform .15s;
+  margin-top: 4px;
+  box-shadow: 0 4px 14px rgba(61,139,110,.3);
+}
+.btn-signin:hover { opacity: .92; transform: translateY(-1px); }
+.btn-signin:active { transform: translateY(0); }
+
+.demo-hint {
+  margin-top: 20px;
+  background: var(--offwhite);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  font-size: .8rem;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+.demo-hint strong { color: var(--text-mid); }
+
+/* ═══════════════════════════════════════
+   ── DASHBOARD SHELL ──
+═══════════════════════════════════════ */
+#dashScreen { min-height: 100vh; background: var(--offwhite); }
+
+/* TOPBAR */
+.topbar {
+  height: 64px;
+  background: var(--white);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center;
+  justify-content: space-between;
+  padding: 0 32px;
+  position: sticky; top: 0; z-index: 50;
+  box-shadow: var(--shadow-sm);
+}
+.topbar-left {
+  display: flex; align-items: center; gap: 24px;
+}
+.topbar-brand {
+  display: flex; align-items: center; gap: 10px;
+}
+.topbar-brand .brand-icon { width: 34px; height: 34px; font-size: 1rem; }
+.topbar-brand .brand-name { font-size: 1.15rem; }
+
+.dept-chip {
+  background: var(--sage-pale);
+  color: var(--sage);
+  border: 1px solid rgba(61,139,110,.25);
+  border-radius: 20px;
+  padding: 4px 12px;
+  font-size: .78rem; font-weight: 600;
+  letter-spacing: .02em;
+}
+.role-chip {
+  background: var(--sky-pale);
+  color: var(--sky);
+  border: 1px solid rgba(58,127,193,.25);
+  border-radius: 20px;
+  padding: 4px 12px;
+  font-size: .78rem; font-weight: 600;
+}
+
+.topbar-right {
+  display: flex; align-items: center; gap: 14px;
+}
+.user-pill {
+  display: flex; align-items: center; gap: 10px;
+  background: var(--offwhite);
+  border: 1px solid var(--border);
+  border-radius: 30px;
+  padding: 5px 14px 5px 6px;
+}
+.user-avatar {
+  width: 32px; height: 32px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: .8rem; font-weight: 700;
+}
+.av-doc { background: var(--sage-pale); color: var(--sage); }
+.av-nurse { background: var(--amber-pale); color: var(--amber); }
+.user-name { font-size: .85rem; font-weight: 600; }
+.user-role { font-size: .72rem; color: var(--text-muted); }
+
+.btn-logout {
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 7px 16px;
+  font-size: .82rem; font-weight: 500;
+  color: var(--text-muted);
+  transition: all .2s;
+}
+.btn-logout:hover { border-color: var(--rose); color: var(--rose); }
+
+/* DASHBOARD BODY */
+.dash-content {
+  padding: 28px 32px;
+  max-width: 1280px;
+  margin: 0 auto;
+}
+
+/* GREETING BAR */
+.greeting {
+  margin-bottom: 28px;
+  display: flex; align-items: flex-end;
+  justify-content: space-between;
+  flex-wrap: wrap; gap: 12px;
+}
+.greeting h2 {
+  font-family: 'Syne', sans-serif;
+  font-size: 1.7rem; font-weight: 700;
+  line-height: 1.2;
+}
+.greeting p { color: var(--text-muted); font-size: .88rem; margin-top: 4px; }
+.date-badge {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 8px 16px;
+  font-size: .83rem; color: var(--text-mid); font-weight: 500;
+}
+
+/* STAT ROW */
+.stat-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 28px;
+}
+.stat-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 22px 24px;
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow .2s, transform .2s;
+}
+.stat-card:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); }
+.stat-icon {
+  width: 42px; height: 42px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.2rem; margin-bottom: 14px;
+}
+.ic-sage   { background: var(--sage-pale); }
+.ic-amber  { background: var(--amber-pale); }
+.ic-rose   { background: var(--rose-pale); }
+.ic-sky    { background: var(--sky-pale); }
+.stat-num {
+  font-family: 'Syne', sans-serif;
+  font-size: 2rem; font-weight: 700; line-height: 1;
+  color: var(--text);
+}
+.stat-lbl { font-size: .78rem; color: var(--text-muted); margin-top: 5px; }
+
+/* TAB NAV */
+.tab-nav {
+  display: flex; gap: 4px;
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 5px;
+  margin-bottom: 22px;
+  box-shadow: var(--shadow-sm);
+  width: fit-content;
+}
+.tab-btn {
+  padding: 9px 20px;
+  border-radius: var(--radius-sm);
+  border: none;
+  background: transparent;
+  font-size: .87rem; font-weight: 500;
+  color: var(--text-muted);
+  transition: all .2s;
+  display: flex; align-items: center; gap: 7px;
+}
+.tab-btn:hover { color: var(--text); background: var(--offwhite); }
+.tab-btn.active {
+  background: var(--slate);
+  color: white;
+  font-weight: 600;
+}
+
+/* PANEL CARD */
+.panel {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+.panel-header {
+  display: flex; align-items: center;
+  justify-content: space-between;
+  padding: 18px 24px;
+  border-bottom: 1px solid var(--border);
+}
+.panel-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 1rem; font-weight: 600;
+  display: flex; align-items: center; gap: 10px;
+}
+.panel-title .dot {
+  width: 9px; height: 9px; border-radius: 50%;
+}
+.dot-sage  { background: var(--sage); }
+.dot-amber { background: var(--amber); }
+.dot-sky   { background: var(--sky); }
+
+.count-badge {
+  background: var(--offwhite);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 3px 10px;
+  font-size: .75rem; font-weight: 600;
+  color: var(--text-muted);
+}
+
+/* TABLE */
+.data-table { width: 100%; border-collapse: collapse; }
+.data-table th {
+  text-align: left;
+  font-size: .73rem; font-weight: 600;
+  text-transform: uppercase; letter-spacing: .07em;
+  color: var(--text-muted);
+  padding: 10px 24px;
+  background: var(--offwhite);
+  border-bottom: 1px solid var(--border);
+}
+.data-table td {
+  padding: 13px 24px;
+  font-size: .88rem;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+}
+.data-table tr:last-child td { border-bottom: none; }
+.data-table tbody tr { transition: background .15s; }
+.data-table tbody tr:hover td { background: var(--offwhite); }
+
+/* Patient cell */
+.pt-cell { display: flex; align-items: center; gap: 10px; }
+.pt-avatar {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: var(--sage-pale); color: var(--sage);
+  display: flex; align-items: center; justify-content: center;
+  font-size: .75rem; font-weight: 700;
+  flex-shrink: 0;
+}
+.pt-name { font-weight: 600; font-size: .88rem; }
+.pt-id   { font-size: .74rem; color: var(--text-muted); }
+
+/* Status pills */
+.pill {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 3px 10px; border-radius: 20px;
+  font-size: .75rem; font-weight: 600;
+}
+.pill::before { content: ''; width: 6px; height: 6px; border-radius: 50%; }
+.pill-green  { background: #e8f5f0; color: #2e7d56; }
+.pill-green::before  { background: #2e7d56; }
+.pill-amber  { background: var(--amber-pale); color: #b8691a; }
+.pill-amber::before  { background: #b8681a; }
+.pill-rose   { background: var(--rose-pale); color: var(--rose); }
+.pill-rose::before   { background: var(--rose); }
+.pill-sky    { background: var(--sky-pale); color: var(--sky); }
+.pill-sky::before    { background: var(--sky); }
+.pill-slate  { background: #e8edf2; color: var(--slate-light); }
+.pill-slate::before  { background: var(--slate-light); }
+
+/* Dept tag */
+.dept-tag {
+  background: var(--sage-pale);
+  color: var(--sage);
+  border-radius: 6px;
+  padding: 3px 9px;
+  font-size: .74rem; font-weight: 600;
+}
+
+/* SCHEDULE LIST */
+.sched-list { padding: 0; }
+.sched-item {
+  display: flex; align-items: center; gap: 16px;
+  padding: 14px 24px;
+  border-bottom: 1px solid var(--border);
+  transition: background .15s;
+}
+.sched-item:last-child { border-bottom: none; }
+.sched-item:hover { background: var(--offwhite); }
+.sched-time {
+  min-width: 76px;
+  font-size: .82rem; font-weight: 700;
+  color: var(--sage);
+  background: var(--sage-pale);
+  border-radius: var(--radius-sm);
+  padding: 5px 8px;
+  text-align: center;
+}
+.sched-main { flex: 1; }
+.sched-name { font-weight: 600; font-size: .9rem; }
+.sched-note { font-size: .78rem; color: var(--text-muted); margin-top: 2px; }
+.sched-dept-wrap { display: flex; align-items: center; gap: 8px; }
+
+/* NURSE — doctor list */
+.doc-item {
+  display: flex; align-items: center; gap: 14px;
+  padding: 14px 24px;
+  border-bottom: 1px solid var(--border);
+  transition: background .15s;
+}
+.doc-item:last-child { border-bottom: none; }
+.doc-item:hover { background: var(--offwhite); }
+.doc-av {
+  width: 38px; height: 38px; border-radius: 50%;
+  background: var(--sage-pale); color: var(--sage);
+  display: flex; align-items: center; justify-content: center;
+  font-size: .82rem; font-weight: 700; flex-shrink: 0;
+}
+.doc-info { flex: 1; }
+.doc-name { font-weight: 600; font-size: .9rem; }
+.doc-dept { font-size: .78rem; color: var(--text-muted); margin-top: 1px; }
+.doc-shift { font-size: .82rem; color: var(--sky); font-weight: 500; }
+
+/* Two-column grid */
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.full-col { grid-column: 1 / -1; }
+
+/* AVAILABILITY TOGGLE */
+.avail-grid { padding: 20px 24px; }
+.avail-days {
+  display: flex; flex-wrap: wrap; gap: 8px;
+  margin-bottom: 20px;
+}
+.day-toggle {
+  padding: 8px 16px; border-radius: var(--radius-sm);
+  border: 1.5px solid var(--border);
+  background: var(--white);
+  font-size: .83rem; font-weight: 600;
+  color: var(--text-muted);
+  transition: all .2s;
+}
+.day-toggle:hover { border-color: var(--sage); color: var(--sage); }
+.day-toggle.on { background: var(--sage); color: white; border-color: var(--sage); }
+
+.slots-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.slot-toggle {
+  padding: 9px 8px;
+  border-radius: var(--radius-sm);
+  border: 1.5px solid var(--border);
+  font-size: .78rem; font-weight: 600;
+  text-align: center;
+  transition: all .2s;
+  background: var(--white);
+  color: var(--text-mid);
+}
+.slot-toggle.on  { background: #e8f5f0; color: #2e7d56; border-color: #b7dfd0; }
+.slot-toggle.off { background: var(--rose-pale); color: var(--rose); border-color: #f5c0c0; }
+.slot-toggle:hover { opacity: .8; }
+
+.btn-save {
+  margin-top: 18px;
+  width: 100%;
+  background: var(--sage);
+  color: white;
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 11px;
+  font-size: .88rem; font-weight: 600;
+  transition: opacity .2s;
+}
+.btn-save:hover { opacity: .88; }
+
+/* HIDDEN */
+.hidden { display: none !important; }
+
+/* ═══════════════════════════════════════
+   QUEUE SYSTEM
+═══════════════════════════════════════ */
+.queue-status-bar {
+  background: var(--white); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 18px 24px;
+  display: flex; align-items: center; gap: 0; flex-wrap: wrap;
+  margin-bottom: 20px; box-shadow: var(--shadow-sm);
+}
+.qs-item { padding: 0 24px; text-align: center; min-width: 90px; }
+.qs-item:first-child { padding-left: 0; }
+.qs-label { font-size: .72rem; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: var(--text-muted); margin-bottom: 4px; }
+.qs-value { font-family: 'Syne', sans-serif; font-size: 1.4rem; font-weight: 700; color: var(--text); }
+.qs-value.serving { color: var(--sage); }
+.qs-value.amber { color: var(--amber); }
+.qs-divider { width: 1px; height: 44px; background: var(--border); flex-shrink: 0; }
+.q-btn { padding: 9px 18px; border-radius: var(--radius-sm); border: none; font-size: .85rem; font-weight: 600; cursor: pointer; transition: all .2s; }
+.q-btn-primary { background: var(--slate); color: white; }
+.q-btn-primary:hover { background: var(--slate-mid); }
+.q-btn-success { background: linear-gradient(135deg, var(--sage), var(--sage-light)); color: white; box-shadow: 0 3px 8px rgba(250,78,121,.25); }
+.q-btn-success:hover { opacity: .88; }
+.q-btn-danger { background: var(--rose-pale); color: var(--rose); border: 1px solid rgba(225,29,72,.3); }
+.q-btn-danger:hover { background: var(--rose); color: white; }
+.q-btn-outline { background: transparent; border: 1.5px solid var(--border); color: var(--text-mid); }
+.q-btn-outline:hover { border-color: var(--sage); color: var(--sage); }
+.q-btn:disabled { opacity: .4; cursor: not-allowed; }
+.queue-item { display: flex; align-items: center; gap: 16px; padding: 14px 24px; border-bottom: 1px solid var(--border); transition: background .15s; }
+.queue-item:last-child { border-bottom: none; }
+.queue-item:hover { background: var(--offwhite); }
+.queue-item.qi-serving { background: var(--sage-pale); border-left: 4px solid var(--sage); }
+.queue-item.qi-done { opacity: .55; }
+.queue-item.qi-declined { background: var(--rose-pale); border-left: 4px solid var(--rose); }
+.qi-num { width: 52px; height: 52px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-family: 'Syne', sans-serif; font-size: .9rem; font-weight: 700; flex-shrink: 0; }
+.qi-num-pending   { background: var(--offwhite); border: 2px solid var(--border); color: var(--text-mid); }
+.qi-num-confirmed { background: var(--sage-pale); border: 2px solid rgba(250,78,121,.3); color: var(--sage); }
+.qi-num-serving   { background: var(--sage); color: white; box-shadow: 0 4px 12px rgba(250,78,121,.3); }
+.qi-num-done      { background: var(--sky-pale); border: 2px solid rgba(250,118,151,.2); color: var(--sky); }
+.qi-num-declined  { background: var(--rose-pale); border: 2px solid rgba(225,29,72,.2); color: var(--rose); }
+.qi-main { flex: 1; min-width: 0; }
+.qi-name { font-weight: 600; font-size: .92rem; margin-bottom: 2px; }
+.qi-meta { font-size: .78rem; color: var(--text-muted); }
+.qi-wait { font-size: .78rem; color: var(--amber); font-weight: 600; margin-top: 2px; }
+.qi-actions { display: flex; gap: 8px; flex-shrink: 0; flex-wrap: wrap; }
+.nurse-queue-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 20px; }
+.nq-card { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow-sm); }
+.nq-card-header { padding: 14px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+.nq-dept { font-family: 'Syne', sans-serif; font-size: .9rem; font-weight: 700; }
+.nq-serving-badge { background: var(--sage); color: white; border-radius: 20px; padding: 3px 12px; font-size: .78rem; font-weight: 700; }
+.nq-list { max-height: 260px; overflow-y: auto; }
+.nq-item { display: flex; align-items: center; gap: 12px; padding: 10px 20px; border-bottom: 1px solid var(--border); font-size: .84rem; }
+.nq-item:last-child { border-bottom: none; }
+.nq-item.nq-serving { background: var(--sage-pale); font-weight: 600; }
+.nq-item.nq-done { opacity: .5; }
+.nq-item.nq-declined { background: var(--rose-pale); }
+.nq-qnum { font-weight: 700; font-family: 'Syne', sans-serif; min-width: 46px; color: var(--sage); font-size: .82rem; }
+.nq-pname { flex: 1; }
+.nq-time { color: var(--text-muted); font-size: .76rem; }
+.nq-footer { padding: 10px 20px; background: var(--offwhite); border-top: 1px solid var(--border); font-size: .78rem; color: var(--text-muted); display: flex; justify-content: space-between; }
+.pt-queue-card { background: linear-gradient(135deg, var(--slate), var(--slate-mid)); border-radius: var(--radius); padding: 32px; color: white; margin-bottom: 20px; position: relative; overflow: hidden; }
+.pt-queue-card::before { content:''; position:absolute; top:-60px; right:-60px; width:200px; height:200px; border-radius:50%; background: radial-gradient(circle, rgba(250,78,121,.25) 0%, transparent 70%); }
+.ptq-label { font-size: .73rem; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: rgba(255,255,255,.5); margin-bottom: 8px; }
+.ptq-qnum { font-family: 'Syne', sans-serif; font-size: 3.5rem; font-weight: 700; color: var(--sage-light); line-height: 1; margin-bottom: 16px; }
+.ptq-info { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 20px; }
+.ptq-field label { display: block; font-size: .71rem; font-weight: 600; color: rgba(255,255,255,.5); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 3px; }
+.ptq-field p { font-size: .88rem; font-weight: 600; color: white; }
+.ptq-progress { background: rgba(255,255,255,.1); border-radius: 8px; height: 8px; margin-bottom: 8px; overflow: hidden; }
+.ptq-progress-bar { height: 100%; background: linear-gradient(90deg, var(--sage), var(--sage-light)); border-radius: 8px; transition: width .5s ease; }
+.ptq-progress-txt { font-size: .78rem; color: rgba(255,255,255,.6); }
+.pt-notif-panel { margin-bottom: 20px; }
+.pt-notif { display: flex; align-items: flex-start; gap: 14px; padding: 14px 18px; border-radius: var(--radius); border: 1px solid transparent; margin-bottom: 10px; animation: notifIn .35s ease; position: relative; }
+@keyframes notifIn { from{opacity:0;transform:translateY(-8px)} to{opacity:1;transform:translateY(0)} }
+.pt-notif-icon { font-size: 1.4rem; flex-shrink: 0; margin-top: 1px; }
+.pt-notif-body { flex: 1; }
+.pt-notif-title { font-weight: 700; font-size: .88rem; margin-bottom: 2px; }
+.pt-notif-msg { font-size: .83rem; line-height: 1.5; }
+.pt-notif-time { font-size: .72rem; color: var(--text-muted); margin-top: 4px; }
+.pt-notif-close { position: absolute; top: 10px; right: 12px; background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 1rem; line-height: 1; padding: 2px 6px; border-radius: 4px; }
+.pt-notif-close:hover { background: rgba(0,0,0,.06); }
+.notif-info     { background: var(--sky-pale);   border-color: rgba(250,118,151,.2); }
+.notif-success  { background: var(--sage-pale);            border-color: rgba(250,78,121,.25); }
+.notif-warning  { background: var(--amber-pale);  border-color: rgba(232,148,58,.25); }
+.notif-danger   { background: var(--rose-pale);   border-color: rgba(225,29,72,.25); }
+.notif-serving  { background: linear-gradient(135deg,var(--sage-pale),#fde4ea); border-color: var(--sage); }
+.queue-number-display { background: linear-gradient(135deg, var(--slate), var(--slate-mid)); border-radius: var(--radius); padding: 18px; margin-bottom: 14px; text-align: center; }
+.qnd-label { font-size: .73rem; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: rgba(255,255,255,.55); margin-bottom: 4px; }
+.qnd-num { font-family: 'Syne', sans-serif; font-size: 2.2rem; font-weight: 700; color: var(--sage-light); }
+
+/* ═══════════════════════════════════════
+   RESPONSIVE
+═══════════════════════════════════════ */
+@media (max-width: 1024px) {
+  .stat-row { grid-template-columns: repeat(2, 1fr); }
+  .two-col { grid-template-columns: 1fr; }
+}
+@media (max-width: 768px) {
+  #loginScreen { grid-template-columns: 1fr; }
+  .login-panel-left { display: none; }
+  .login-panel-right { padding: 40px 28px; }
+  .dash-content { padding: 20px 16px; }
+  .topbar { padding: 0 16px; }
+  .stat-row { grid-template-columns: repeat(2, 1fr); }
+  .slots-grid { grid-template-columns: repeat(2, 1fr); }
+  .data-table th, .data-table td { padding: 10px 14px; }
+  .queue-status-bar { gap: 12px; }
+  .qs-divider { display: none; }
+  .qs-item { padding: 8px 0; min-width: 70px; }
+  .nurse-queue-grid { grid-template-columns: 1fr; }
+  .ptq-info { grid-template-columns: 1fr; }
+  .qi-actions { flex-direction: column; }
+}
+@media (max-width: 480px) {
+  .stat-row { grid-template-columns: 1fr; }
+  .tab-nav { width: 100%; flex-wrap: wrap; }
+  .queue-status-bar { flex-wrap: wrap; }
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════
+     LOGIN SCREEN
+═══════════════════════════════ -->
+<div id="loginScreen" class="screen active">
+  <!-- LEFT: Branding -->
+  <div class="login-panel-left">
+    <div class="brand">
+      <div class="brand-icon">🏥</div>
+      <div class="brand-name">OPD Smart <span>Care</span></div>
+    </div>
+
+    <div class="login-hero">
+      <h1>OPD<br/><em>Smart Care</em><br/>System</h1>
+      <p>Streamlined scheduling for doctors and nurses. Manage appointments, patient records, and department workflows in one place.</p>
+    </div>
+
+    <div class="login-stats">
+      <div class="login-stat"><div class="num">50+</div><div class="lbl">Specialists</div></div>
+      <div class="login-stat"><div class="num">12</div><div class="lbl">Departments</div></div>
+      <div class="login-stat"><div class="num">24/7</div><div class="lbl">System Access</div></div>
+      <div class="login-stat"><div class="num">200+</div><div class="lbl">Daily Patients</div></div>
+    </div>
+  </div>
+
+  <!-- RIGHT: Form -->
+  <div class="login-panel-right">
+    <div class="login-form-wrap">
+      <h2 class="login-form-title">Sign In</h2>
+      <p class="login-form-sub">Select your role to access your portal</p>
+
+      <!-- Role toggle -->
+      <div class="role-toggle" style="grid-template-columns:1fr 1fr 1fr;">
+        <button class="role-btn" id="rolePatBtn" onclick="selectRole('patient')">
+          🧑‍⚕️ Patient
+        </button>
+        <button class="role-btn active" id="roleDocBtn" onclick="selectRole('doctor')">
+          🩺 Doctor
+        </button>
+        <button class="role-btn" id="roleNurseBtn" onclick="selectRole('nurse')">
+          💉 Nurse
+        </button>
+      </div>
+      <!-- Patient: register link -->
+      <div id="patientRegLink" class="hidden" style="text-align:center;margin-bottom:16px;">
+        <span style="font-size:.85rem;color:var(--text-muted);">No account yet?</span>
+        <button onclick="showScreen('opdRegisterScreen')" style="background:none;border:none;color:var(--sage);font-weight:600;font-size:.85rem;text-decoration:underline;cursor:pointer;margin-left:4px;">Register as Patient</button>
+      </div>
+
+      <!-- Department (doctor only) -->
+      <div class="f-group dept-row" id="deptRow">
+        <label>Department</label>
+        <div class="select-wrap">
+          <select id="loginDept">
+            <option value="">— Select Department —</option>
+            <option value="General Medicine">General Medicine</option>
+            <option value="Pediatrics">Pediatrics</option>
+            <option value="Orthopedics">Orthopedics</option>
+            <option value="Oncology">Oncology</option>
+            <option value="Cardiology">Cardiology</option>
+            <option value="ENT">ENT</option>
+            <option value="Others">Others</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="f-group">
+        <label>Email Address</label>
+        <input type="email" id="loginEmail" placeholder="Enter your email"/>
+      </div>
+
+      <div class="f-group">
+        <label>Password</label>
+        <input type="password" id="loginPass" placeholder="••••••••"/>
+      </div>
+
+      <div class="f-error" id="loginError">Invalid credentials. Please try again.</div>
+
+      <button class="btn-signin" onclick="doLogin()">Sign In →</button>
+
+      <div class="demo-hint">
+        <strong>Patient:</strong> juan@patient.ph / patient123<br/>
+        <strong>Doctor:</strong> dr.santos@medcare.ph / doctor123<br/>
+        <strong>Doctor:</strong> dr.reyes@medcare.ph / doctor123<br/>
+        <strong>Nurse:</strong> nurse.clara@medcare.ph / nurse123
+      </div>
+      <div style="margin-top:16px;text-align:center;">
+        <button onclick="showScreen('opdHomeScreen')" style="background:none;border:none;color:var(--sage);font-size:.84rem;font-weight:600;cursor:pointer;text-decoration:underline;">🌐 Visit OPD Patient Portal →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════
+     DASHBOARD SCREEN
+═══════════════════════════════ -->
+<div id="dashScreen" class="screen">
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="topbar-brand">
+        <div class="brand-icon">🏥</div>
+        <div class="brand-name">OPD Smart <span>Care</span></div>
+      </div>
+      <span id="topDeptChip" class="dept-chip hidden"></span>
+      <span id="topRoleChip" class="role-chip"></span>
+    </div>
+    <div class="topbar-right">
+      <div class="user-pill">
+        <div class="user-avatar" id="topAvatar"></div>
+        <div>
+          <div class="user-name" id="topName"></div>
+          <div class="user-role" id="topRole"></div>
+        </div>
+      </div>
+      <button class="btn-logout" onclick="doLogout()">Log Out</button>
+    </div>
+  </div>
+
+  <!-- BODY -->
+  <div class="dash-content">
+
+    <!-- Greeting -->
+    <div class="greeting">
+      <div>
+        <h2 id="greetMsg">Welcome back</h2>
+        <p id="greetSub">Here's your overview for today.</p>
+      </div>
+      <div class="date-badge" id="dateBadge"></div>
+    </div>
+
+    <!-- ════════════════ DOCTOR VIEW ════════════════ -->
+    <div id="doctorView" class="hidden">
+
+      <!-- Stats -->
+      <div class="stat-row">
+        <div class="stat-card">
+          <div class="stat-icon ic-sage">📅</div>
+          <div class="stat-num" id="dStat1">—</div>
+          <div class="stat-lbl">Today's Appointments</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon ic-sky">✅</div>
+          <div class="stat-num" id="dStat2">—</div>
+          <div class="stat-lbl">Completed</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon ic-amber">⏳</div>
+          <div class="stat-num" id="dStat3">—</div>
+          <div class="stat-lbl">Pending</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon ic-rose">👥</div>
+          <div class="stat-num" id="dStat4">—</div>
+          <div class="stat-lbl">Total Patients</div>
+        </div>
+      </div>
+
+      <!-- Tab Nav -->
+      <div class="tab-nav">
+        <button class="tab-btn active" onclick="switchDoctorTab('proposed', this)">📋 Proposed Schedule</button>
+        <button class="tab-btn" onclick="switchDoctorTab('patients', this)">👥 Patient Data</button>
+        <button class="tab-btn" onclick="switchDoctorTab('appointments', this)">📅 Appointments</button>
+        <button class="tab-btn" onclick="switchDoctorTab('queue', this)">🔢 Queue Manager</button>
+        <button class="tab-btn" onclick="switchDoctorTab('availability', this)">🗓 My Availability</button>
+      </div>
+
+      <!-- TAB: Proposed Schedule -->
+      <div id="dTab-proposed">
+        <div class="panel">
+          <div class="panel-header">
+            <span class="panel-title"><span class="dot dot-sage"></span>Proposed Schedule — Today</span>
+            <span class="count-badge" id="dSchedCount"></span>
+          </div>
+          <div class="sched-list" id="dSchedList"></div>
+        </div>
+      </div>
+
+      <!-- TAB: Patient Data -->
+      <div id="dTab-patients" class="hidden">
+        <div class="panel">
+          <div class="panel-header">
+            <span class="panel-title"><span class="dot dot-sky"></span>Patient Records</span>
+            <span class="count-badge" id="dPatCount"></span>
+          </div>
+          <div style="overflow-x:auto">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Patient</th>
+                  <th>Age</th>
+                  <th>Contact</th>
+                  <th>Condition</th>
+                  <th>Last Visit</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="dPatientBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB: Appointments -->
+      <div id="dTab-appointments" class="hidden">
+        <div class="panel">
+          <div class="panel-header">
+            <span class="panel-title"><span class="dot dot-amber"></span>Appointment Details</span>
+            <span class="count-badge" id="dApptCount"></span>
+          </div>
+          <div style="overflow-x:auto">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Time</th>
+                  <th>Patient</th>
+                  <th>Reason</th>
+                  <th>Type</th>
+                  <th>REF</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="dApptBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB: Queue Manager -->
+      <div id="dTab-queue" class="hidden">
+        <!-- Queue Status Bar -->
+        <div class="queue-status-bar">
+          <div class="qs-item">
+            <div class="qs-label">Now Serving</div>
+            <div class="qs-value serving" id="dQNowServing">—</div>
+          </div>
+          <div class="qs-divider"></div>
+          <div class="qs-item">
+            <div class="qs-label">Queue Progress</div>
+            <div class="qs-value" id="dQProgress">0 / 0</div>
+          </div>
+          <div class="qs-divider"></div>
+          <div class="qs-item">
+            <div class="qs-label">Waiting</div>
+            <div class="qs-value amber" id="dQWaiting">0</div>
+          </div>
+          <div class="qs-divider"></div>
+          <div class="qs-item">
+            <div class="qs-label">Est. Remaining</div>
+            <div class="qs-value" id="dQEstTime">—</div>
+          </div>
+          <div style="margin-left:auto;display:flex;gap:10px;flex-wrap:wrap;">
+            <button class="q-btn q-btn-primary" onclick="doctorStartQueue()" id="dBtnStart">▶ Start Queue</button>
+            <button class="q-btn q-btn-success" onclick="doctorNextQueue()" id="dBtnNext">⏭ Next Patient</button>
+          </div>
+        </div>
+        <!-- Queue List -->
+        <div class="panel">
+          <div class="panel-header">
+            <span class="panel-title"><span class="dot dot-sage"></span>Patient Queue</span>
+            <span class="count-badge" id="dQCount"></span>
+          </div>
+          <div id="dQueueList"></div>
+        </div>
+      </div>
+
+      <!-- TAB: Availability -->
+      <div id="dTab-availability" class="hidden">
+        <div class="panel">
+          <div class="panel-header">
+            <span class="panel-title"><span class="dot dot-sage"></span>Manage My Availability</span>
+          </div>
+          <div class="avail-grid">
+            <p style="font-size:.83rem;font-weight:600;color:var(--text-mid);margin-bottom:10px;">Available Days</p>
+            <div class="avail-days">
+              <button class="day-toggle on" onclick="toggleDay(this)">Mon</button>
+              <button class="day-toggle on" onclick="toggleDay(this)">Tue</button>
+              <button class="day-toggle on" onclick="toggleDay(this)">Wed</button>
+              <button class="day-toggle" onclick="toggleDay(this)">Thu</button>
+              <button class="day-toggle on" onclick="toggleDay(this)">Fri</button>
+              <button class="day-toggle" onclick="toggleDay(this)">Sat</button>
+              <button class="day-toggle" onclick="toggleDay(this)">Sun</button>
+            </div>
+            <p style="font-size:.83rem;font-weight:600;color:var(--text-mid);margin-bottom:10px;">Time Slots</p>
+            <div class="slots-grid">
+              <button class="slot-toggle on" onclick="toggleSlot(this)">8:00–9:00 AM ✓</button>
+              <button class="slot-toggle on" onclick="toggleSlot(this)">9:00–10:00 AM ✓</button>
+              <button class="slot-toggle on" onclick="toggleSlot(this)">10:00–11:00 AM ✓</button>
+              <button class="slot-toggle off" onclick="toggleSlot(this)">11:00–12:00 PM ✗</button>
+              <button class="slot-toggle on" onclick="toggleSlot(this)">1:00–2:00 PM ✓</button>
+              <button class="slot-toggle on" onclick="toggleSlot(this)">2:00–3:00 PM ✓</button>
+              <button class="slot-toggle on" onclick="toggleSlot(this)">3:00–4:00 PM ✓</button>
+              <button class="slot-toggle on" onclick="toggleSlot(this)">4:00–5:00 PM ✓</button>
+            </div>
+            <button class="btn-save" onclick="alert('✅ Schedule saved! Patients will see your updated availability.')">Save Changes</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════ NURSE VIEW ════════════════ -->
+    <div id="nurseView" class="hidden">
+
+      <!-- Stats -->
+      <div class="stat-row">
+        <div class="stat-card">
+          <div class="stat-icon ic-sage">👨‍⚕️</div>
+          <div class="stat-num" id="nStat1">8</div>
+          <div class="stat-lbl">Doctors On Duty</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon ic-sky">👥</div>
+          <div class="stat-num" id="nStat2">47</div>
+          <div class="stat-lbl">Total Patients Today</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon ic-amber">📅</div>
+          <div class="stat-num" id="nStat3">24</div>
+          <div class="stat-lbl">Appointments Today</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon ic-rose">🏥</div>
+          <div class="stat-num" id="nStat4">6</div>
+          <div class="stat-lbl">Active Departments</div>
+        </div>
+      </div>
+
+      <!-- Tab Nav -->
+      <div class="tab-nav">
+        <button class="tab-btn active" onclick="switchNurseTab('ndoctors', this)">👨‍⚕️ Doctor Schedules</button>
+        <button class="tab-btn" onclick="switchNurseTab('npatients', this)">📋 Patient Schedule</button>
+        <button class="tab-btn" onclick="switchNurseTab('nqueue', this)">🔢 Queue Monitor</button>
+        <button class="tab-btn" onclick="switchNurseTab('ndepts', this)">🏥 Departments</button>
+      </div>
+
+      <!-- NURSE TAB: Doctor Schedules -->
+      <div id="nTab-ndoctors">
+        <div class="panel">
+          <div class="panel-header">
+            <span class="panel-title"><span class="dot dot-sage"></span>Doctors On Duty — Today</span>
+            <span class="count-badge" id="nDocCount">8 doctors</span>
+          </div>
+          <div style="overflow-x:auto">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Doctor</th>
+                  <th>Department</th>
+                  <th>Shift Hours</th>
+                  <th>Appointments</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="nDocBody">
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- NURSE TAB: Patient Schedule -->
+      <div id="nTab-npatients" class="hidden">
+        <div class="panel">
+          <div class="panel-header">
+            <span class="panel-title"><span class="dot dot-amber"></span>Patient & Doctor Schedule — Today</span>
+            <span class="count-badge" id="nPatCount">24 appointments</span>
+          </div>
+          <div style="overflow-x:auto">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Time</th>
+                  <th>Patient</th>
+                  <th>Age</th>
+                  <th>Condition / Concern</th>
+                  <th>Doctor</th>
+                  <th>Department</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="nPatBody">
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- NURSE TAB: Queue Monitor -->
+      <div id="nTab-nqueue" class="hidden">
+        <div class="nurse-queue-grid" id="nQueueGrid"></div>
+      </div>
+
+      <!-- NURSE TAB: Departments -->
+      <div id="nTab-ndepts" class="hidden">
+        <div class="two-col" id="nDeptGrid">
+        </div>
+      </div>
+
+    </div>
+    <!-- /nurse view -->
+
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     OPD HOME / PORTAL SCREEN
+═══════════════════════════════════════════════════ -->
+<div id="opdHomeScreen" class="screen">
+  <!-- OPD NAV -->
+  <nav class="opd-nav">
+    <div class="opd-nav-brand">
+      <div class="brand-icon" style="width:36px;height:36px;font-size:1rem;">🏥</div>
+      <div class="brand-name" style="font-size:1.1rem;">OPD Smart Care <span style="font-family:'Instrument Sans',sans-serif;font-size:.8rem;font-weight:400;color:rgba(255,255,255,.5);margin-left:4px;">Patient Portal</span></div>
+    </div>
+    <div class="opd-nav-links">
+      <a href="javascript:void(0)" onclick="opdNavScroll('opd-hero')">Home</a>
+      <a href="javascript:void(0)" onclick="opdNavScroll('opd-departments')">Departments</a>
+      <a href="javascript:void(0)" onclick="opdNavScroll('opd-doctors')">Doctors</a>
+      <a href="javascript:void(0)" onclick="opdNavScroll('opd-mission-vision')">Mission & Vision</a>
+      <a href="javascript:void(0)" onclick="opdNavScroll('opd-contact')">Contact</a>
+    </div>
+    <div class="opd-nav-actions">
+      <button class="opd-btn-ghost" onclick="showScreen('opdRegisterScreen')">Register</button>
+      <button class="opd-btn-primary" onclick="showScreen('opdBookScreen')">Book Appointment</button>
+      <button class="opd-btn-ghost" onclick="showScreen('loginScreen')">Staff Login</button>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="opd-hero" id="opd-hero">
+    <div class="opd-hero-content">
+      <div class="opd-hero-badge">Outpatient Department System</div>
+      <h1 class="opd-hero-title">Your Health,<br/><em>Just a Click</em><br/>Away</h1>
+      <p class="opd-hero-sub">Book outpatient appointments online, skip the queue, and get the care you need — anytime, anywhere.</p>
+      <div class="opd-hero-btns">
+        <button class="opd-btn-primary opd-btn-lg" onclick="showScreen('opdBookScreen')">📅 Book Appointment</button>
+        <button class="opd-btn-outline opd-btn-lg" onclick="showScreen('opdRegisterScreen')">🖊 Register as Patient</button>
+      </div>
+    </div>
+    <div class="opd-hero-stats">
+      <div class="opd-hero-stat"><div class="opd-stat-n">24/7</div><div class="opd-stat-l">Online Booking</div></div>
+      <div class="opd-hero-stat"><div class="opd-stat-n" id="opd-stat-specialists">50+</div><div class="opd-stat-l">OPD Specialists</div></div>
+      <div class="opd-hero-stat"><div class="opd-stat-n">~15m</div><div class="opd-stat-l">Avg. Wait Time</div></div>
+      <div class="opd-hero-stat"><div class="opd-stat-n" id="opd-stat-depts">7</div><div class="opd-stat-l">Departments</div></div>
+    </div>
+  </section>
+
+  <!-- MISSION & VISION -->
+  <section class="opd-section" id="opd-mission-vision">
+    <div class="opd-section-inner">
+      <div class="opd-section-label">Purpose & Core Values</div>
+      <h2 class="opd-section-title">Mission & Vision</h2>
+      <p class="opd-section-sub">Driven by commitment to healthcare excellence and digital transformation.</p>
+      
+      <div class="opd-mv-grid">
+        <div class="opd-mv-card">
+          <span class="opd-mv-icon">🎯</span>
+          <h3>MISSION</h3>
+          <p>We are committed to providing accessible, efficient, and patient-centered outpatient healthcare services through the use of modern digital technology.</p>
+          <p>We aim to support patients and healthcare professionals by delivering accurate information management, seamless appointment scheduling, and improved communication to ensure quality care and better health outcomes.</p>
+        </div>
+        
+        <div class="opd-mv-card">
+          <span class="opd-mv-icon">👁️</span>
+          <h3>VISION</h3>
+          <p>To become a reliable and innovative digital healthcare platform that enhances outpatient services by integrating technology into daily clinical operations, promoting efficiency, patient satisfaction, and excellence in healthcare delivery.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SERVICES -->
+  <section class="opd-section" id="opd-services">
+    <div class="opd-section-inner">
+      <div class="opd-section-label">What We Offer</div>
+      <h2 class="opd-section-title">OPD Services at a Glance</h2>
+      <p class="opd-section-sub">Our outpatient department covers all your needs — from registration to follow-up care.</p>
+      <div class="opd-services-grid">
+        <div class="opd-service-card"><div class="opd-svc-icon">🖊️</div><h3>Patient Registration</h3><p>Register once and manage all your visits digitally. Your profile is securely stored and accessible anytime.</p></div>
+        <div class="opd-service-card"><div class="opd-svc-icon">📅</div><h3>Appointment Booking</h3><p>Book, reschedule, or cancel appointments online. See real-time doctor availability and time slots.</p></div>
+        <div class="opd-service-card"><div class="opd-svc-icon">👨‍⚕️</div><h3>Doctor Scheduling</h3><p>View doctor profiles, specializations, and available schedules across all OPD departments.</p></div>
+        <div class="opd-service-card"><div class="opd-svc-icon">📋</div><h3>Patient Records</h3><p>Securely store consultation records, diagnoses, and visit history for better clinical decisions.</p></div>
+        <div class="opd-service-card"><div class="opd-svc-icon">🏷️</div><h3>OPD Token & Queue</h3><p>Get a digital token and track your position in the queue in real time — no more waiting blindly.</p></div>
+        <div class="opd-service-card"><div class="opd-svc-icon">💬</div><h3>Inquiry System</h3><p>Send inquiries to our OPD team and receive appointment confirmations and reminders directly.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- DEPARTMENTS -->
+  <section class="opd-section opd-section-white" id="opd-departments">
+    <div class="opd-section-inner">
+      <div class="opd-section-label">Our Departments</div>
+      <h2 class="opd-section-title">OPD Department Listings</h2>
+      <p class="opd-section-sub">Specialized outpatient care across all major departments, staffed by experienced physicians.</p>
+      <div class="opd-dept-grid" id="opd-landing-depts">
+        <!-- Departments will be rendered dynamically -->
+      </div>
+    </div>
+  </section>
+
+  <!-- DOCTORS -->
+  <section class="opd-section" id="opd-doctors">
+    <div class="opd-section-inner">
+      <div class="opd-section-label">Our Team</div>
+      <h2 class="opd-section-title">Meet Our OPD Doctors</h2>
+      <p class="opd-section-sub">Experienced specialists available for outpatient consultations across all departments.</p>
+      <div class="opd-doctors-grid" id="opd-landing-doctors">
+        <!-- Doctors will be rendered dynamically -->
+      </div>
+    </div>
+  </section>
+
+  <!-- TOKEN BOARD -->
+  <section class="opd-section" style="background:var(--slate);">
+    <div class="opd-section-inner">
+      <div class="opd-section-label" style="color:var(--sage-light);">Live Queue</div>
+      <h2 class="opd-section-title" style="color:white;">OPD Token Status</h2>
+      <p class="opd-section-sub" style="color:rgba(255,255,255,.55);">Real-time queue numbers for each department today.</p>
+      <div class="opd-token-board" id="opd-token-board">
+        <!-- Tokens will be rendered dynamically -->
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section class="opd-section opd-section-white" id="opd-contact">
+    <div class="opd-section-inner">
+      <div class="opd-section-label">Get in Touch</div>
+      <h2 class="opd-section-title">Contact & Inquiries</h2>
+      <p class="opd-section-sub">Have questions? Reach out and we'll get back to you promptly.</p>
+      <div class="opd-contact-grid">
+        <div>
+          <div class="opd-contact-card"><div class="opd-contact-icon">📍</div><div><h4>Hospital Address</h4><p>123 Healthcare Avenue, City General Hospital, Philippines</p></div></div>
+          <div class="opd-contact-card"><div class="opd-contact-icon">📞</div><div><h4>OPD Hotline</h4><p>(02) 8123-4567 · Mon–Sat, 7AM–5PM</p></div></div>
+          <div class="opd-contact-card"><div class="opd-contact-icon">✉️</div><div><h4>Email</h4><p>opd@opdsmartcare.ph</p></div></div>
+        </div>
+        <div class="opd-inquiry-form">
+          <h3>Send an Inquiry</h3>
+          <div class="f-group"><label>Your Name</label><input type="text" placeholder="Full name" id="inqName"/></div>
+          <div class="f-group"><label>Email</label><input type="email" placeholder="your@email.com" id="inqEmail"/></div>
+          <div class="f-group"><label>Message</label><textarea class="opd-textarea" placeholder="Write your inquiry here..." id="inqMsg"></textarea></div>
+          <button class="opd-btn-primary" style="width:100%;padding:13px;" onclick="submitInquiry()">Send Message</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="opd-footer">
+    <div class="brand" style="justify-content:center;">
+      <div class="brand-icon" style="width:32px;height:32px;font-size:.9rem;">🏥</div>
+      <div class="brand-name" style="font-size:1rem;">OPD Smart <span>Care</span></div>
+    </div>
+    <div style="color:rgba(255,255,255,.45);font-size:.82rem;margin-top:8px;">© 2026 OPD Smart Care System · All rights reserved</div>
+    <div style="margin-top:12px;display:flex;gap:16px;justify-content:center;flex-wrap:wrap;">
+      <button onclick="showScreen('opdBookScreen')" style="background:none;border:none;color:var(--sage-light);font-size:.83rem;cursor:pointer;">Book Appointment</button>
+      <button onclick="showScreen('opdRegisterScreen')" style="background:none;border:none;color:var(--sage-light);font-size:.83rem;cursor:pointer;">Register</button>
+      <button onclick="showScreen('loginScreen')" style="background:none;border:none;color:var(--sage-light);font-size:.83rem;cursor:pointer;">Staff Login</button>
+    </div>
+  </footer>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     OPD REGISTER SCREEN
+═══════════════════════════════════════════════════ -->
+<div id="opdRegisterScreen" class="screen">
+  <div class="opd-form-page">
+    <div class="opd-form-topbar">
+      <button onclick="goBackToPortal()" class="opd-back-btn">← Back to Portal</button>
+      <div class="brand-name" style="font-size:1rem;">OPD Smart <span>Care</span></div>
+    </div>
+    <div class="opd-form-container">
+      <div class="opd-form-left">
+        <div class="opd-form-label-tag">New Patient</div>
+        <h2>Create Your<br/>Patient Account</h2>
+        <p>Register once for a digital patient profile. Faster bookings, secure records, and appointment history.</p>
+        <div class="opd-benefit"><div class="opd-benefit-icon">🔒</div><div><strong>Secure Records</strong><span>Your data is encrypted and only accessible to authorized medical staff.</span></div></div>
+        <div class="opd-benefit"><div class="opd-benefit-icon">⚡</div><div><strong>Faster Booking</strong><span>Skip re-entering details every visit. Your profile is ready to go.</span></div></div>
+        <div class="opd-benefit"><div class="opd-benefit-icon">🔔</div><div><strong>Appointment Reminders</strong><span>Get notified before your appointment so you never miss a visit.</span></div></div>
+      </div>
+      <div class="opd-form-card">
+        <h3>Patient Registration Form</h3>
+        <div class="opd-form-row">
+          <div class="f-group"><label>First Name</label><input type="text" id="regFname" placeholder="Juan"/></div>
+          <div class="f-group"><label>Last Name</label><input type="text" id="regLname" placeholder="Dela Cruz"/></div>
+        </div>
+        <div class="opd-form-row">
+          <div class="f-group"><label>Date of Birth</label><input type="date" id="regDob"/></div>
+          <div class="f-group"><label>Sex</label><div class="select-wrap"><select id="regSex"><option value="">Select</option><option>Male</option><option>Female</option><option>Other</option></select></div></div>
+        </div>
+        <div class="f-group"><label>Email Address</label><input type="email" id="regEmail" placeholder="juan@email.com"/></div>
+        <div class="f-group"><label>Contact Number</label><input type="tel" id="regPhone" placeholder="09XX-XXX-XXXX"/></div>
+        <div class="f-group"><label>Home Address</label><input type="text" id="regAddress" placeholder="Street, City, Province"/></div>
+        <div class="f-group"><label>Password</label><input type="password" id="regPass" placeholder="Create a password"/></div>
+        <div class="f-group"><label>Confirm Password</label><input type="password" id="regPass2" placeholder="Repeat password"/></div>
+        <div class="f-error" id="regError"></div>
+        <button class="opd-btn-primary" style="width:100%;padding:13px;margin-top:4px;" onclick="submitRegistration()">Create Account →</button>
+        <p style="text-align:center;margin-top:14px;font-size:.83rem;color:var(--text-muted);">Already registered? <button onclick="selectRole('patient');showScreen('loginScreen')" style="background:none;border:none;color:var(--sage);font-weight:600;cursor:pointer;text-decoration:underline;">Sign In</button></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     OPD BOOK APPOINTMENT SCREEN
+═══════════════════════════════════════════════════ -->
+<div id="opdBookScreen" class="screen">
+  <div class="opd-form-page">
+    <div class="opd-form-topbar">
+      <button onclick="goBackToPortal()" class="opd-back-btn">← Back to Portal</button>
+      <div class="brand-name" style="font-size:1rem;">OPD Smart <span>Care</span></div>
+    </div>
+    <div class="opd-form-container">
+      <div class="opd-form-left">
+        <div class="opd-form-label-tag">Book a Visit</div>
+        <h2>Appointment<br/>Booking</h2>
+        <p>Choose your department and preferred doctor, pick a time that works for you, and we'll handle the rest.</p>
+        <div class="opd-steps">
+          <div class="opd-step"><div class="opd-step-num">1</div><div><strong>Fill the form</strong><span>Enter your details and select a department and doctor.</span></div></div>
+          <div class="opd-step"><div class="opd-step-num">2</div><div><strong>Choose a slot</strong><span>Pick from available dates and time slots.</span></div></div>
+          <div class="opd-step"><div class="opd-step-num">3</div><div><strong>Get confirmation</strong><span>Receive your booking reference and token number.</span></div></div>
+        </div>
+      </div>
+      <div class="opd-form-card">
+        <h3>Appointment Form</h3>
+        <div class="opd-form-row">
+          <div class="f-group"><label>First Name</label><input type="text" id="bkFname" placeholder="Juan"/></div>
+          <div class="f-group"><label>Last Name</label><input type="text" id="bkLname" placeholder="Dela Cruz"/></div>
+        </div>
+        <div class="f-group"><label>Contact Number</label><input type="tel" id="bkPhone" placeholder="09XX-XXX-XXXX"/></div>
+        <div class="f-group"><label>Department</label>
+          <div class="select-wrap"><select id="bkDept" onchange="updateDoctors()">
+            <option value="">Select department</option>
+            <option>General Medicine</option><option>Pediatrics</option><option>Orthopedics</option>
+            <option>Oncology</option><option>Cardiology</option><option>ENT</option><option>Others</option>
+          </select></div>
+        </div>
+        <div class="f-group"><label>Doctor</label>
+          <div class="select-wrap"><select id="bkDoctor">
+            <option value="">Select department first</option>
+          </select></div>
+        </div>
+        <div class="opd-form-row">
+          <div class="f-group"><label>Preferred Date</label><input type="date" id="bkDate"/></div>
+          <div class="f-group"><label>Time Slot</label>
+            <div class="select-wrap"><select id="bkTime">
+              <option value="">Select time</option>
+              <option>8:00 AM – 9:00 AM</option><option>9:00 AM – 10:00 AM</option>
+              <option>10:00 AM – 11:00 AM</option><option>1:00 PM – 2:00 PM</option>
+              <option>2:00 PM – 3:00 PM</option><option>3:00 PM – 4:00 PM</option>
+              <option>4:00 PM – 5:00 PM</option>
+            </select></div>
+          </div>
+        </div>
+        <div class="f-group"><label>Reason for Visit</label><textarea class="opd-textarea" id="bkReason" placeholder="Briefly describe your concern..." style="min-height:70px;"></textarea></div>
+        <div class="f-error" id="bkError"></div>
+        <button class="opd-btn-primary" style="width:100%;padding:13px;margin-top:4px;" onclick="submitBooking()">Confirm Appointment →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     PATIENT DASHBOARD SCREEN
+═══════════════════════════════════════════════════ -->
+<div id="patientDashScreen" class="screen">
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="topbar-brand">
+        <div class="brand-icon" style="width:34px;height:34px;font-size:1rem;">🏥</div>
+        <div class="brand-name" style="font-size:1.15rem;">OPD Smart <span>Care</span></div>
+      </div>
+      <span class="role-chip" style="background:#fef3e7;color:#b86a1a;border:1px solid rgba(184,106,26,.2);">🧑‍⚕️ Patient</span>
+    </div>
+    <div class="topbar-right">
+      <div class="user-pill">
+        <div class="user-avatar" id="ptAvatar" style="background:#fef3e7;color:#b86a1a;font-size:.8rem;font-weight:700;"></div>
+        <div>
+          <div class="user-name" id="ptName"></div>
+          <div class="user-role">Patient</div>
+        </div>
+      </div>
+      <button class="btn-logout" onclick="patientLogout()">Log Out</button>
+    </div>
+  </div>
+  <div class="dash-content">
+    <div class="greeting">
+      <div>
+        <h2 id="ptGreet">Welcome back</h2>
+        <p id="ptGreetSub">Here's your OPD patient overview.</p>
+      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;">
+        <button class="opd-btn-primary" onclick="showScreen('opdBookScreen')" style="padding:9px 18px;font-size:.85rem;">+ New Appointment</button>
+        <div class="date-badge" id="ptDateBadge"></div>
+      </div>
+    </div>
+    <!-- Notifications area -->
+    <div id="ptNotifArea"></div>
+    <!-- Stats -->
+    <div class="stat-row" style="grid-template-columns:repeat(4,1fr);">
+      <div class="stat-card"><div class="stat-icon ic-sage">📅</div><div class="stat-num" id="ptStat1">2</div><div class="stat-lbl">Upcoming Appointments</div></div>
+      <div class="stat-card"><div class="stat-icon ic-sky">✅</div><div class="stat-num" id="ptStat2">5</div><div class="stat-lbl">Past Visits</div></div>
+      <div class="stat-card"><div class="stat-icon ic-amber">🏥</div><div class="stat-num" id="ptStat3">—</div><div class="stat-lbl">Department</div></div>
+      <div class="stat-card"><div class="stat-icon ic-rose">🔢</div><div class="stat-num" id="ptStat4">—</div><div class="stat-lbl">My Queue No.</div></div>
+    </div>
+    <!-- Tab nav -->
+    <div class="tab-nav">
+      <button class="tab-btn active" onclick="switchPatientTab('upcoming',this)">📅 Upcoming</button>
+      <button class="tab-btn" onclick="switchPatientTab('queue',this)">🔢 My Queue</button>
+      <button class="tab-btn" onclick="switchPatientTab('history',this)">🗂 Visit History</button>
+      <button class="tab-btn" onclick="switchPatientTab('info',this)">👤 My Info</button>
+    </div>
+    <!-- Upcoming -->
+    <div id="ptTab-upcoming">
+      <div class="panel">
+        <div class="panel-header"><span class="panel-title"><span class="dot dot-sage"></span>Upcoming Appointments</span><span class="count-badge" id="ptUpcomingCount"></span></div>
+        <div id="ptUpcomingList"></div>
+      </div>
+    </div>
+    <!-- My Queue -->
+    <div id="ptTab-queue" class="hidden">
+      <div id="ptQueueContent"></div>
+    </div>
+    <!-- History -->
+    <div id="ptTab-history" class="hidden">
+      <div class="panel">
+        <div class="panel-header"><span class="panel-title"><span class="dot dot-sky"></span>Visit History</span></div>
+        <div style="overflow-x:auto;">
+          <table class="data-table" id="ptHistoryTable">
+            <thead><tr><th>Date</th><th>Doctor</th><th>Department</th><th>Reason</th><th>Status</th></tr></thead>
+            <tbody id="ptHistoryBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <!-- My Info -->
+    <div id="ptTab-info" class="hidden">
+      <div class="panel">
+        <div class="panel-header"><span class="panel-title"><span class="dot dot-amber"></span>My Patient Information</span></div>
+        <div style="padding:24px;" id="ptInfoBody"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- BOOKING CONFIRMATION MODAL -->
+<div id="bookingModal" class="opd-modal-overlay" onclick="closeBookingModal(event)">
+  <div class="opd-modal">
+    <div style="font-size:3rem;margin-bottom:12px;">✅</div>
+    <h3>Appointment Booked!</h3>
+    <p>Your booking has been received and is awaiting doctor confirmation.</p>
+    <div class="opd-modal-ref" id="bookingRef">REF-00000</div>
+    <div class="queue-number-display" id="bookingQueueNum" style="display:none;">
+      <div class="qnd-label">Your Queue Number</div>
+      <div class="qnd-num" id="bookingQueueNumVal">Q001</div>
+    </div>
+    <div id="bookingDetails" style="font-size:.85rem;color:var(--text-muted);margin-bottom:20px;line-height:1.7;"></div>
+    <button class="opd-btn-primary" style="width:100%;padding:12px;" onclick="closeBookingModal()">Go to My Dashboard →</button>
+  </div>
+</div>
+
+
+<style>
+/* ═══════════════════════════════════════
+   OPD NAV
+═══════════════════════════════════════ */
+.opd-nav {
+  background: var(--slate);
+  height: 64px;
+  display: flex; align-items: center;
+  justify-content: space-between;
+  padding: 0 40px;
+  position: sticky; top: 0; z-index: 100;
+  box-shadow: 0 2px 12px rgba(0,0,0,.2);
+}
+.opd-nav-brand { display: flex; align-items: center; gap: 10px; }
+.opd-nav-links { display: flex; gap: 28px; }
+.opd-nav-links a {
+  color: rgba(255,255,255,.7); text-decoration: none;
+  font-size: .88rem; font-weight: 500;
+  transition: color .2s;
+}
+.opd-nav-links a:hover { color: var(--sage-light); }
+.opd-nav-actions { display: flex; gap: 10px; align-items: center; }
+
+.opd-btn-primary {
+  background: linear-gradient(135deg, var(--sage), var(--sage-light));
+  color: white; border: none;
+  border-radius: var(--radius-sm);
+  padding: 9px 18px; font-size: .88rem; font-weight: 600;
+  cursor: pointer; transition: opacity .2s, transform .15s;
+  box-shadow: 0 3px 10px rgba(250,78,121,.3);
+}
+.opd-btn-primary:hover { opacity: .9; transform: translateY(-1px); }
+.opd-btn-ghost {
+  background: transparent;
+  color: rgba(255,255,255,.8);
+  border: 1px solid rgba(255,255,255,.2);
+  border-radius: var(--radius-sm);
+  padding: 8px 16px; font-size: .85rem; font-weight: 500;
+  cursor: pointer; transition: all .2s;
+}
+.opd-btn-ghost:hover { border-color: var(--sage-light); color: var(--sage-light); }
+.opd-btn-outline {
+  background: transparent;
+  color: white;
+  border: 1.5px solid rgba(255,255,255,.4);
+  border-radius: var(--radius-sm);
+  padding: 12px 24px; font-size: .95rem; font-weight: 600;
+  cursor: pointer; transition: all .2s;
+}
+.opd-btn-outline:hover { border-color: white; }
+.opd-btn-lg { padding: 14px 28px !important; font-size: 1rem !important; }
+
+/* ═══════════════════════════════════════
+   OPD HERO
+═══════════════════════════════════════ */
+.opd-hero {
+  background: var(--slate);
+  padding: 80px 40px 70px;
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 40px; align-items: center;
+  position: relative; overflow: hidden;
+}
+.opd-hero::before {
+  content:''; position:absolute; top:-100px; right:-100px;
+  width:500px;height:500px;border-radius:50%;
+  background:radial-gradient(circle,rgba(250,78,121,.2) 0%,transparent 70%);
+  pointer-events:none;
+}
+.opd-hero-badge {
+  display: inline-block;
+  background: rgba(250,78,121,.15);
+  color: var(--sage-light);
+  border: 1px solid rgba(250,78,121,.3);
+  padding: 5px 14px; border-radius: 20px;
+  font-size: .75rem; font-weight: 700;
+  letter-spacing: .1em; text-transform: uppercase;
+  margin-bottom: 20px;
+}
+.opd-hero-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 3.2rem; line-height: 1.1;
+  color: white; margin-bottom: 18px; font-weight: 700;
+}
+.opd-hero-title em { font-style: normal; color: var(--sage-light); }
+.opd-hero-sub { color: rgba(255,255,255,.6); font-size: 1rem; line-height: 1.7; max-width: 420px; margin-bottom: 32px; }
+.opd-hero-btns { display: flex; gap: 14px; flex-wrap: wrap; }
+.opd-hero-stats {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
+}
+.opd-hero-stat {
+  background: rgba(255,255,255,.05);
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: var(--radius);
+  padding: 22px;
+  transition: background .2s;
+}
+.opd-hero-stat:hover { background: rgba(250,78,121,.15); }
+.opd-stat-n { font-family: 'Syne', sans-serif; font-size: 2rem; color: var(--sage-light); font-weight: 700; }
+.opd-stat-l { color: rgba(255,255,255,.5); font-size: .8rem; margin-top: 4px; }
+
+/* ═══════════════════════════════════════
+   OPD SECTIONS
+═══════════════════════════════════════ */
+.opd-section { padding: 72px 40px; }
+.opd-section-white { background: var(--white); }
+.opd-section-inner { max-width: 1200px; margin: 0 auto; }
+.opd-section-label {
+  font-size: .73rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: .12em;
+  color: var(--sage); margin-bottom: 10px;
+}
+.opd-section-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 2.2rem; font-weight: 700;
+  margin-bottom: 12px; line-height: 1.2;
+}
+.opd-section-sub { color: var(--text-muted); font-size: .95rem; line-height: 1.7; max-width: 500px; margin-bottom: 44px; }
+
+/* SERVICES */
+.opd-services-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 22px; }
+.opd-service-card {
+  border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 28px 24px; transition: all .25s;
+  position: relative; overflow: hidden;
+}
+.opd-service-card::after {
+  content:''; position:absolute; bottom:0; left:0;
+  width:100%; height:3px;
+  background: var(--sage); transform: scaleX(0);
+  transition: transform .3s; transform-origin: left;
+}
+.opd-service-card:hover { box-shadow: var(--shadow-md); transform: translateY(-3px); }
+.opd-service-card:hover::after { transform: scaleX(1); }
+.opd-svc-icon { font-size: 1.6rem; margin-bottom: 16px; }
+.opd-service-card h3 { font-size: .95rem; font-weight: 700; margin-bottom: 8px; }
+.opd-service-card p { color: var(--text-muted); font-size: .85rem; line-height: 1.6; }
+
+/* DEPARTMENTS */
+.opd-dept-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 20px; }
+.opd-dept-card {
+  background: var(--white); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 28px 24px;
+  cursor: pointer; transition: all .2s;
+  box-shadow: var(--shadow-sm);
+}
+.opd-dept-card:hover { box-shadow: var(--shadow-md); transform: translateY(-3px); border-color: var(--sage); }
+.opd-dept-icon { font-size: 2rem; margin-bottom: 14px; }
+.opd-dept-card h3 { font-size: 1rem; font-weight: 700; margin-bottom: 8px; }
+.opd-dept-card p { color: var(--text-muted); font-size: .84rem; line-height: 1.6; margin-bottom: 14px; }
+.opd-dept-meta { display: flex; align-items: center; justify-content: space-between; font-size: .78rem; color: var(--text-muted); }
+
+/* DOCTORS */
+.opd-doctors-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 20px; }
+.opd-doc-card { border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; transition: all .2s; }
+.opd-doc-card:hover { box-shadow: var(--shadow-md); transform: translateY(-3px); }
+.opd-doc-avatar { height: 130px; display: flex; align-items: center; justify-content: center; font-size: 3.5rem; }
+.opd-doc-info { padding: 18px 20px; }
+.opd-doc-info h4 { font-weight: 700; font-size: .92rem; margin-bottom: 3px; }
+.opd-doc-dept { color: var(--sage); font-size: .78rem; font-weight: 600; margin-bottom: 10px; }
+.opd-avail { display: inline-flex; align-items: center; gap: 6px; font-size: .75rem; color: var(--sage); font-weight: 500; }
+.opd-avail::before { content:''; width: 6px; height: 6px; border-radius: 50%; background: var(--sage); }
+
+/* TOKEN BOARD */
+.opd-token-board { display: grid; grid-template-columns: repeat(4,1fr); gap: 18px; }
+.opd-token-card { background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.12); border-radius: var(--radius); padding: 24px; text-align: center; }
+.opd-token-num { font-family: 'Syne', sans-serif; font-size: 2.4rem; color: var(--sage-light); font-weight: 700; }
+.opd-token-dept { color: rgba(255,255,255,.5); font-size: .8rem; margin-top: 6px; }
+
+/* CONTACT */
+.opd-contact-grid { display: grid; grid-template-columns: 1fr 1.2fr; gap: 48px; align-items: start; }
+.opd-contact-card {
+  background: var(--offwhite); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 22px 24px;
+  display: flex; align-items: flex-start; gap: 16px;
+  margin-bottom: 16px;
+}
+.opd-contact-icon { font-size: 1.3rem; flex-shrink: 0; }
+.opd-contact-card h4 { font-weight: 700; font-size: .9rem; margin-bottom: 4px; }
+.opd-contact-card p { color: var(--text-muted); font-size: .85rem; }
+.opd-inquiry-form { background: var(--offwhite); border: 1px solid var(--border); border-radius: var(--radius); padding: 32px; }
+.opd-inquiry-form h3 { font-family: 'Syne', sans-serif; font-size: 1.4rem; margin-bottom: 22px; }
+.opd-textarea {
+  width: 100%; padding: 11px 14px;
+  border: 1.5px solid var(--border); border-radius: var(--radius-sm);
+  font-size: .9rem; font-family: 'Instrument Sans', sans-serif;
+  resize: vertical; min-height: 90px;
+  transition: border-color .2s; background: var(--white); color: var(--text);
+}
+.opd-textarea:focus { outline: none; border-color: var(--sage); box-shadow: 0 0 0 3px rgba(61,139,110,.12); }
+
+/* MISSION & VISION */
+#opd-mission-vision { 
+  background: linear-gradient(rgba(250, 78, 121, .2), rgba(250, 78, 121, .3)), url('healthcare.jpg');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+}
+.opd-mv-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; margin-top: 40px; }
+.opd-mv-card { 
+  background: var(--white); 
+  padding: 40px 32px; 
+  border-radius: var(--radius); 
+  border: 1px solid var(--border); 
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  text-align: center;
+}
+.opd-mv-card:hover { transform: translateY(-5px); box-shadow: var(--shadow-md); }
+.opd-mv-icon { font-size: 2.8rem; margin-bottom: 20px; display: block; }
+.opd-mv-card h3 { 
+  font-family: 'Syne', sans-serif;
+  font-size: 1.5rem; 
+  font-weight: 800; 
+  letter-spacing: 0.05em; 
+  color: var(--slate); 
+  margin-bottom: 20px; 
+  text-transform: uppercase;
+}
+.opd-mv-card p { 
+  font-size: 0.95rem; 
+  line-height: 1.75; 
+  color: var(--text-muted); 
+  margin-bottom: 16px;
+}
+.opd-mv-card p:last-child { margin-bottom: 0; }
+
+/* FOOTER */
+.opd-footer { background: var(--slate); padding: 32px 40px; text-align: center; }
+
+/* ═══════════════════════════════════════
+   OPD FORM PAGES (Register / Book)
+═══════════════════════════════════════ */
+.opd-form-page { min-height: 100vh; background: var(--offwhite); }
+.opd-form-topbar {
+  background: var(--white); border-bottom: 1px solid var(--border);
+  height: 56px; display: flex; align-items: center;
+  justify-content: space-between; padding: 0 32px;
+  box-shadow: var(--shadow-sm);
+}
+.opd-back-btn {
+  background: none; border: none; color: var(--sage);
+  font-size: .88rem; font-weight: 600; cursor: pointer;
+  display: flex; align-items: center; gap: 6px;
+  transition: opacity .2s;
+}
+.opd-back-btn:hover { opacity: .75; }
+.opd-form-container {
+  display: grid; grid-template-columns: 1fr 1.3fr;
+  gap: 60px; align-items: start;
+  max-width: 1100px; margin: 0 auto;
+  padding: 48px 32px;
+}
+.opd-form-left h2 {
+  font-family: 'Syne', sans-serif;
+  font-size: 2rem; font-weight: 700;
+  margin-bottom: 14px; line-height: 1.2;
+}
+.opd-form-left p { color: var(--text-muted); font-size: .92rem; line-height: 1.7; margin-bottom: 28px; }
+.opd-form-label-tag {
+  display: inline-block;
+  background: var(--sage-pale); color: var(--sage);
+  border: 1px solid rgba(61,139,110,.25);
+  border-radius: 20px; padding: 4px 14px;
+  font-size: .73rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: .08em;
+  margin-bottom: 14px;
+}
+.opd-benefit { display: flex; align-items: flex-start; gap: 14px; margin-bottom: 18px; }
+.opd-benefit-icon {
+  width: 40px; height: 40px; border-radius: 10px;
+  background: var(--sage-pale); border: 1px solid rgba(61,139,110,.2);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.1rem; flex-shrink: 0;
+}
+.opd-benefit strong { display: block; font-size: .9rem; margin-bottom: 3px; }
+.opd-benefit span { font-size: .82rem; color: var(--text-muted); line-height: 1.5; }
+.opd-steps { display: flex; flex-direction: column; gap: 18px; }
+.opd-step { display: flex; align-items: flex-start; gap: 16px; }
+.opd-step-num {
+  width: 34px; height: 34px; border-radius: 50%;
+  background: var(--sage); color: white;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: .85rem; flex-shrink: 0;
+}
+.opd-step strong { display: block; font-size: .9rem; margin-bottom: 3px; }
+.opd-step span { font-size: .82rem; color: var(--text-muted); }
+.opd-form-card {
+  background: var(--white); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 36px;
+  box-shadow: var(--shadow-md);
+}
+.opd-form-card h3 { font-family: 'Syne', sans-serif; font-size: 1.4rem; font-weight: 700; margin-bottom: 24px; }
+.opd-form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+/* MODAL */
+.opd-modal-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,.5); z-index: 999;
+  align-items: center; justify-content: center;
+}
+.opd-modal-overlay.open { display: flex; }
+.opd-modal {
+  background: var(--white); border-radius: 18px;
+  padding: 40px 36px; max-width: 420px; width: 90%;
+  text-align: center; box-shadow: var(--shadow-lg);
+  animation: modalIn .3s ease;
+}
+@keyframes modalIn { from{opacity:0;transform:scale(.95) translateY(10px)} to{opacity:1;transform:scale(1) translateY(0)} }
+.opd-modal h3 { font-family: 'Syne', sans-serif; font-size: 1.5rem; margin-bottom: 8px; }
+.opd-modal p { color: var(--text-muted); font-size: .88rem; margin-bottom: 20px; }
+.opd-modal-ref {
+  background: var(--sage-pale); border: 1px solid rgba(250,78,121,.2);
+  border-radius: var(--radius-sm); padding: 12px 20px;
+  font-weight: 700; font-size: 1.1rem; color: var(--sage);
+  margin-bottom: 14px;
+}
+
+/* PATIENT DASHBOARD EXTRAS */
+.pt-appt-item {
+  display: flex; align-items: center; gap: 16px;
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--border);
+  transition: background .15s;
+}
+.pt-appt-item:last-child { border-bottom: none; }
+.pt-appt-item:hover { background: var(--offwhite); }
+.pt-appt-time { min-width: 88px; }
+.pt-appt-main { flex: 1; }
+.pt-appt-name { font-weight: 600; font-size: .9rem; }
+.pt-appt-note { font-size: .78rem; color: var(--text-muted); margin-top: 2px; }
+.pt-info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+.pt-info-field label { display: block; font-size: .75rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 5px; }
+.pt-info-field p { font-size: .92rem; font-weight: 500; color: var(--text); }
+
+/* ═══════════════════════════════════════
+   RESPONSIVE
+═══════════════════════════════════════ */
+@media (max-width: 1024px) {
+  .opd-services-grid, .opd-dept-grid, .opd-doctors-grid { grid-template-columns: 1fr 1fr; }
+  .opd-mv-grid { grid-template-columns: 1fr; }
+  .opd-token-board { grid-template-columns: 1fr 1fr; }
+  .opd-contact-grid { grid-template-columns: 1fr; }
+  .opd-form-container { grid-template-columns: 1fr; }
+  .opd-form-left { display: none; }
+}
+@media (max-width: 768px) {
+  .opd-nav { padding: 0 16px; }
+  .opd-nav-links { display: none; }
+  .opd-hero { grid-template-columns: 1fr; padding: 60px 20px; }
+  .opd-hero-stats { display: none; }
+  .opd-section { padding: 48px 20px; }
+  .opd-services-grid, .opd-dept-grid, .opd-doctors-grid { grid-template-columns: 1fr; }
+  .opd-token-board { grid-template-columns: 1fr 1fr; }
+  .opd-form-row { grid-template-columns: 1fr; }
+  .pt-info-grid { grid-template-columns: 1fr; }
+  .opd-form-topbar { padding: 0 16px; }
+  .opd-form-card { padding: 22px; }
+}
+@media (max-width: 480px) {
+  .opd-hero-title { font-size: 2.2rem; }
+  .opd-nav-actions .opd-btn-ghost:not(:last-child) { display: none; }
+}
+</style>
+
+<script>
+// ════════════════════════════════════════════════
+//  SCREEN MANAGER
+// ════════════════════════════════════════════════
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+function opdNavScroll(id) {
+  const el = document.getElementById(id);
+  if (el) {
+    // Get the height of the sticky navigation bar
+    const navHeight = document.querySelector('.opd-nav').offsetHeight;
+    const elementPosition = el.getBoundingClientRect().top;
+    const offsetPosition = elementPosition + window.pageYOffset - navHeight;
+
+    window.scrollTo({
+      top: offsetPosition,
+      behavior: 'smooth'
+    });
+  }
+}
+
+function goBackToPortal() {
+  if (_currentPatientEmail) {
+    showScreen('patientDashScreen');
+  } else if (_currentDoctorDept) {
+    showScreen('dashScreen');
+  } else {
+    showScreen('opdHomeScreen');
+  }
+}
+
+// ════════════════════════════════════════════════
+//  ACCOUNTS
+// ════════════════════════════════════════════════
+let ACCOUNTS = {};
+
+async function fetchAccounts() {
+  try {
+    const response = await fetch('http://127.0.0.1:3000/api/users');
+    const users = await response.json();
+    ACCOUNTS = users.reduce((acc, user) => {
+      acc[user.email] = user;
+      return acc;
+    }, {});
+    console.log('Accounts loaded from DB');
+    
+    // Refresh Landing Page
+    renderHeroStats();
+    renderLandingDoctors();
+  } catch (error) {
+    console.error('Failed to fetch accounts:', error);
+  }
+}
+
+
+// ════════════════════════════════════════════════
+//  GLOBAL QUEUE STATE  (shared across all roles)
+// ════════════════════════════════════════════════
+let queueCounter = {}; // { dept: nextNum }
+let QUEUE_DB = {};     // { dept: [ queueEntry, ... ] }
+
+async function fetchQueueDb() {
+  try {
+    const response = await fetch('http://127.0.0.1:3000/api/queues');
+    QUEUE_DB = await response.json();
+    console.log('Queue DB loaded from DB');
+    
+    // Auto-update DEPT_DATA stats based on QUEUE_DB
+    for (const dept in QUEUE_DB) {
+      if (!DEPT_DATA[dept]) {
+        DEPT_DATA[dept] = { stats: { appts: 0, done: 0, pending: 0, total: 0 }, patients: [], schedule: [] };
+      }
+      const q = QUEUE_DB[dept];
+      DEPT_DATA[dept].stats.total = q.length;
+      DEPT_DATA[dept].stats.done = q.filter(e => e.status === 'done').length;
+      DEPT_DATA[dept].stats.pending = q.filter(e => e.status === 'pending').length;
+      DEPT_DATA[dept].stats.appts = q.filter(e => e.status === 'confirmed' || e.status === 'serving').length;
+      
+      // Sync schedule (appointments list) for the dashboard
+      DEPT_DATA[dept].schedule = q.map(e => ({
+        time: e.time,
+        name: e.name,
+        note: e.reason + (e.date ? ' · ' + e.date : '') + (e.ref ? ' · ' + e.ref : ''),
+        status: e.status
+      }));
+    }
+    
+    // Refresh Landing Page
+    renderHeroStats();
+    renderLandingDepartments();
+    renderTokenBoard();
+  } catch (error) {
+    console.error('Failed to fetch Queue DB:', error);
+  }
+}
+
+function renderLandingDepartments() {
+  const grid = document.getElementById('opd-landing-depts');
+  if (!grid) return;
+
+  const deptMeta = {
+    'General Medicine': { icon: '🩺', desc: 'Comprehensive primary care and internal medicine consultations.' },
+    'Pediatrics': { icon: '👶', desc: 'Child health, vaccinations, and developmental care.' },
+    'Orthopedics': { icon: '🦴', desc: 'Bone, joint, and muscle disorders and fracture management.' },
+    'Oncology': { icon: '🔬', desc: 'Cancer consultation and chemotherapy follow-up services.' },
+    'Cardiology': { icon: '❤️', desc: 'Heart disease diagnosis and cardiovascular monitoring.' },
+    'ENT': { icon: '👂', desc: 'Ear, nose, and throat disorders and hearing assessments.' }
+  };
+
+  const depts = Object.keys(DEPT_DATA);
+  if (depts.length === 0) {
+    grid.innerHTML = '<div style="text-align:center;grid-column:1/-1;">No departments found.</div>';
+    return;
+  }
+
+  grid.innerHTML = depts.map(name => {
+    const meta = deptMeta[name] || { icon: '🏥', desc: 'Specialized outpatient healthcare services.' };
+    const q = QUEUE_DB[name] || [];
+    const serving = q.find(e => e.status === 'serving');
+    
+    let statusLabel = '';
+    if (serving) {
+      statusLabel = `<span class="pill pill-green">Active</span><span>Token ${serving.qNum}</span>`;
+    } else {
+      const doctors = Object.values(ACCOUNTS).filter(u => u.role === 'doctor' && u.dept === name);
+      if (doctors.length > 0) {
+        statusLabel = `<span class="pill pill-amber">Open</span><span>${doctors[0].shift || 'Available'}</span>`;
+      } else {
+        statusLabel = `<span class="pill pill-slate">Inactive</span><span>No Doctor</span>`;
+      }
+    }
+
+    return `
+      <div class="opd-dept-card" onclick="showScreen('opdBookScreen')">
+        <div class="opd-dept-icon">${meta.icon}</div>
+        <h3>${name}</h3>
+        <p>${meta.desc}</p>
+        <div class="opd-dept-meta">${statusLabel}</div>
+      </div>
+    `;
+  }).join('');
+}
+
+function renderLandingDoctors() {
+  const grid = document.getElementById('opd-landing-doctors');
+  if (!grid) return;
+
+  const doctors = Object.values(ACCOUNTS).filter(u => u.role === 'doctor');
+  if (doctors.length === 0) {
+    grid.innerHTML = '<div style="text-align:center;grid-column:1/-1;">No doctors currently available.</div>';
+    return;
+  }
+
+  const avatars = [
+    'linear-gradient(135deg,#fff0f3,#ffa6be)',
+    'linear-gradient(135deg,#fdf2f8,#ff87a7)',
+    'linear-gradient(135deg,#fff1f2,#fa7697)',
+    'linear-gradient(135deg,#fff0f3,#ff648b)',
+    'linear-gradient(135deg,#fdf2f4,#fa4e79)',
+    'linear-gradient(135deg,#fff5f7,#ffa6be)'
+  ];
+
+  grid.innerHTML = doctors.map((doc, idx) => {
+    const avatar = avatars[idx % avatars.length];
+    const emoji = doc.initials.includes('S') || doc.initials.includes('L') ? '👩‍⚕️' : '👨‍⚕️';
+    
+    return `
+      <div class="opd-doc-card">
+        <div class="opd-doc-avatar" style="background:${avatar};">${emoji}</div>
+        <div class="opd-doc-info">
+          <h4>${doc.name}</h4>
+          <div class="opd-doc-dept">${doc.dept}</div>
+          <span class="opd-avail">${doc.shift || 'Available Today'}</span>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function renderHeroStats() {
+  const specEl = document.getElementById('opd-stat-specialists');
+  const deptEl = document.getElementById('opd-stat-depts');
+  
+  if (specEl) {
+    const doctorCount = Object.values(ACCOUNTS).filter(u => u.role === 'doctor').length;
+    specEl.textContent = doctorCount > 0 ? doctorCount + '+' : '50+';
+  }
+  
+  if (deptEl) {
+    const deptCount = Object.keys(DEPT_DATA).length;
+    deptEl.textContent = deptCount > 0 ? deptCount : '7';
+  }
+}
+
+function renderTokenBoard() {
+  const board = document.getElementById('opd-token-board');
+  if (!board) return;
+
+  const depts = Object.keys(QUEUE_DB);
+  if (depts.length === 0) {
+    board.innerHTML = '<div style="color:rgba(255,255,255,.45);text-align:center;grid-column:1/-1;">No active queue at the moment.</div>';
+    return;
+  }
+
+  board.innerHTML = depts.map(dept => {
+    const q = QUEUE_DB[dept] || [];
+    const serving = q.find(e => e.status === 'serving');
+    const waiting = q.filter(e => e.status === 'confirmed' || e.status === 'pending').length;
+
+    let statusHtml = '';
+    if (serving) {
+      statusHtml = `<span class="pill pill-green" style="margin-top:8px;">Now Serving</span>`;
+    } else if (waiting > 0) {
+      statusHtml = `<span class="pill pill-amber" style="margin-top:8px;">${waiting} Waiting</span>`;
+    } else {
+      statusHtml = `<span class="pill pill-sky" style="margin-top:8px;">Available</span>`;
+    }
+
+    const tokenNum = serving ? serving.qNum : (q.length > 0 ? q[0].qNum : '—');
+
+    return `
+      <div class="opd-token-card">
+        <div class="opd-token-num">${tokenNum}</div>
+        <div class="opd-token-dept">${dept}</div>
+        ${statusHtml}
+      </div>
+    `;
+  }).join('');
+}
+
+// Function para sa real-time updates (polling)
+async function startRealTimeUpdates() {
+  setInterval(async () => {
+    await fetchAccounts();
+    await fetchDeptDoctors();
+    await fetchQueueDb();
+    await fetchPatientDb();
+    await fetchDeptData();
+    
+    // Refresh Landing Page Stats
+    renderHeroStats();
+    renderLandingDepartments();
+    renderLandingDoctors();
+    renderTokenBoard();
+    
+    // Refresh current view based on logged-in role
+    if (_currentDoctorDept) {
+      // Refresh Doctor views
+      renderDoctorQueue(_currentDoctorDept);
+      loadDoctorDashboard(_currentDoctorDept); 
+    }
+    
+    if (_currentPatientEmail) {
+      // Refresh Patient views
+      const user = ACCOUNTS[_currentPatientEmail];
+      if (user) {
+        // Only refresh stats and lists, don't force tab switch
+        const rec = PATIENT_DB[_currentPatientEmail] || {
+          name:user.name, dob:'—', sex:'—', phone:'—', address:'—', email: _currentPatientEmail,
+          notifications:[], upcoming:[], history:[],
+        };
+        
+        document.getElementById('ptStat1').textContent = rec.upcoming.length;
+        document.getElementById('ptStat2').textContent = rec.history.length;
+        document.getElementById('ptStat3').textContent = rec.upcoming[0]?.dept || '—';
+        const withQueue = rec.upcoming.find(a => a.qNum);
+        document.getElementById('ptStat4').textContent = withQueue ? withQueue.qNum : '—';
+        
+        renderPatientNotifications(_currentPatientEmail);
+        renderPatientQueueTab(_currentPatientEmail);
+        
+        // Update upcoming list without switching screen
+        const ul = document.getElementById('ptUpcomingList');
+        if (ul) {
+          if (rec.upcoming.length === 0) {
+            ul.innerHTML = '<div style="padding:28px 24px;text-align:center;color:var(--text-muted);">No upcoming appointments. <button onclick="showScreen(\'opdBookScreen\')" style="background:none;border:none;color:var(--sage);font-weight:600;cursor:pointer;text-decoration:underline;">Book one now →</button></div>';
+          } else {
+            ul.innerHTML = rec.upcoming.map(a => {
+              const pc = a.status==='confirmed'?'pill-green':a.status==='done'?'pill-sky':a.status==='declined'?'pill-rose':'pill-amber';
+              const qTag = a.qNum ? `<span style="background:var(--sage-pale);color:var(--sage);padding:2px 8px;border-radius:6px;font-size:.75rem;font-weight:700;margin-left:6px;">${a.qNum}</span>` : '';
+              return `<div class="pt-appt-item">
+                <div class="pt-appt-time"><div class="sched-time">${a.time}</div><div style="font-size:.74rem;color:var(--text-muted);margin-top:4px;">${a.date}</div></div>
+                <div class="pt-appt-main"><div class="pt-appt-name">${a.doctor}${qTag}</div><div class="pt-appt-note">${a.reason} · <span class="dept-tag">${a.dept}</span></div></div>
+                <div style="text-align:right;"><span class="pill ${pc}">${a.status.charAt(0).toUpperCase()+a.status.slice(1)}</span><div style="font-size:.74rem;color:var(--text-muted);margin-top:4px;">${a.ref}</div></div>
+              </div>`;
+            }).join('');
+          }
+        }
+      }
+    }
+
+    // Refresh Nurse/Monitor view
+    if (!document.getElementById('nurseView').classList.contains('hidden')) {
+      loadNurseDashboard();
+    }
+    loadNurseQueueMonitor();
+    
+  }, 5000); // Bawat 5 segundo
+}
+
+// ════════════════════════════════════════════════
+//  QUEUE ENGINE
+// ════════════════════════════════════════════════
+const CONSULT_MINS = 12; // estimated minutes per consultation
+
+function assignQueueNumber(dept) {
+  const q = QUEUE_DB[dept] || [];
+  const n = q.length + 1;
+  return 'Q' + String(n).padStart(3,'0');
+}
+
+function getQueueStats(dept) {
+  const q = QUEUE_DB[dept] || [];
+  const done      = q.filter(e => e.status === 'done').length;
+  const serving   = q.find(e => e.status === 'serving');
+  const waiting   = q.filter(e => e.status === 'confirmed' || e.status === 'pending').length;
+  const declined  = q.filter(e => e.status === 'declined').length;
+  const servingNum = serving ? serving.qNum : '—';
+  return { total: q.length, done, serving: servingNum, waiting, declined, q };
+}
+
+function estimateWait(dept, myQNum) {
+  const q = QUEUE_DB[dept] || [];
+  const myIdx = q.findIndex(e => e.qNum === myQNum);
+  if (myIdx === -1) return null;
+  const ahead = q.slice(0, myIdx).filter(e => e.status === 'confirmed' || e.status === 'pending' || e.status === 'serving').length;
+  if (ahead === 0) return 0;
+  return ahead * CONSULT_MINS;
+}
+
+async function addNotification(email, type, title, msg) {
+  if (!email) return;
+  const ptRec = PATIENT_DB[email];
+  if (!ptRec) return;
+  if (!ptRec.notifications) ptRec.notifications = [];
+  ptRec.notifications.unshift({ type, title, msg, time: new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'}) });
+  
+  // Save to DB
+  try {
+    await fetch('http://127.0.0.1:3000/api/patients', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(ptRec)
+    });
+  } catch (error) { console.error('Failed to save notification to DB:', error); }
+
+  // If this patient is currently viewing their dashboard, refresh
+  if (_currentPatientEmail === email) renderPatientNotifications(email);
+}
+
+// ════════════════════════════════════════════════
+//  PATIENT DB
+// ════════════════════════════════════════════════
+let PATIENT_DB = {};
+
+async function fetchPatientDb() {
+  try {
+    const response = await fetch('http://127.0.0.1:3000/api/patients');
+    PATIENT_DB = await response.json();
+    console.log('Patient DB loaded from DB');
+  } catch (error) {
+    console.error('Failed to fetch Patient DB:', error);
+  }
+}
+
+// ════════════════════════════════════════════════
+//  DEPARTMENT DATA
+// ════════════════════════════════════════════════
+let DEPT_DATA = {};
+
+async function fetchDeptData() {
+  try {
+    const response = await fetch('http://127.0.0.1:3000/api/departments');
+    DEPT_DATA = await response.json();
+    console.log('Department data loaded from DB');
+  } catch (error) {
+    console.error('Failed to fetch department data:', error);
+  }
+}
+
+// ════════════════════════════════════════════════
+//  DEPARTMENT DOCTORS
+// ════════════════════════════════════════════════
+let DEPT_DOCTORS = {};
+
+async function fetchDeptDoctors() {
+  try {
+    const response = await fetch('http://127.0.0.1:3000/api/doctors');
+    DEPT_DOCTORS = await response.json();
+    console.log('Department doctors loaded from DB');
+  } catch (error) {
+    console.error('Failed to fetch department doctors:', error);
+  }
+}
+
+// ════════════════════════════════════════════════
+//  ROLE SELECTION
+// ════════════════════════════════════════════════
+let currentRole = 'doctor';
+function selectRole(r) {
+  currentRole = r;
+  document.getElementById('rolePatBtn').classList.toggle('active', r==='patient');
+  document.getElementById('roleDocBtn').classList.toggle('active', r==='doctor');
+  document.getElementById('roleNurseBtn').classList.toggle('active', r==='nurse');
+  document.getElementById('deptRow').classList.toggle('show', r==='doctor');
+  document.getElementById('patientRegLink').classList.toggle('hidden', r!=='patient');
+  const ph = { doctor:'doctor@medcare.ph', nurse:'nurse@medcare.ph', patient:'patient@email.ph' };
+  document.getElementById('loginEmail').placeholder = ph[r];
+}
+selectRole('doctor');
+
+// ════════════════════════════════════════════════
+//  LOGIN
+// ════════════════════════════════════════════════
+let _currentPatientEmail = null;
+let _currentDoctorDept   = null;
+
+function doLogin() {
+  const email = document.getElementById('loginEmail').value.trim().toLowerCase();
+  const pass  = document.getElementById('loginPass').value;
+  const dept  = document.getElementById('loginDept').value;
+  const errEl = document.getElementById('loginError');
+  errEl.style.display = 'none';
+
+  const user = ACCOUNTS[email];
+  if (!user || user.pass !== pass || user.role !== currentRole) {
+    errEl.textContent = 'Incorrect credentials or role. Please try again.';
+    errEl.style.display = 'block'; return;
+  }
+  if (currentRole === 'doctor' && !dept) {
+    errEl.textContent = 'Please select your department before signing in.';
+    errEl.style.display = 'block'; return;
+  }
+
+  if (currentRole === 'patient') {
+    _currentPatientEmail = email;
+    loadPatientDashboard(email, user);
+    showScreen('patientDashScreen');
+    return;
+  }
+
+  // Staff topbar
+  const av = document.getElementById('topAvatar');
+  av.textContent = user.initials;
+  av.className = 'user-avatar ' + (currentRole==='doctor' ? 'av-doc' : 'av-nurse');
+  document.getElementById('topName').textContent = user.name;
+  document.getElementById('topRole').textContent = currentRole==='doctor' ? 'Physician' : 'Registered Nurse';
+  document.getElementById('topRoleChip').textContent = currentRole==='doctor' ? '🩺 Doctor' : '💉 Nurse';
+  const deptChip = document.getElementById('topDeptChip');
+  if (currentRole==='doctor') { deptChip.textContent = '🏥 '+dept; deptChip.classList.remove('hidden'); }
+  else { deptChip.classList.add('hidden'); }
+
+  const hour = new Date().getHours();
+  const tod  = hour<12 ? 'Good morning' : hour<17 ? 'Good afternoon' : 'Good evening';
+  const last = user.name.split(' ').slice(-1)[0];
+  document.getElementById('greetMsg').textContent = `${tod}, ${last} 👋`;
+  document.getElementById('greetSub').textContent = currentRole==='doctor'
+    ? `${dept} · Here are your patients and queue for today.`
+    : `Overview of all doctor schedules and queue status.`;
+  document.getElementById('dateBadge').textContent =
+    new Date().toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+
+  if (currentRole==='doctor') {
+    _currentDoctorDept = dept;
+    loadDoctorDashboard(dept);
+    document.getElementById('doctorView').classList.remove('hidden');
+    document.getElementById('nurseView').classList.add('hidden');
+  } else {
+    loadNurseDashboard();
+    document.getElementById('nurseView').classList.remove('hidden');
+    document.getElementById('doctorView').classList.add('hidden');
+  }
+  showScreen('dashScreen');
+}
+
+// ════════════════════════════════════════════════
+//  DOCTOR DASHBOARD
+// ════════════════════════════════════════════════
+function loadDoctorDashboard(dept) {
+  const data = DEPT_DATA[dept] || {
+    stats: { appts: 0, done: 0, pending: 0, total: 0 },
+    patients: [],
+    schedule: []
+  };
+  document.getElementById('dStat1').textContent = data.stats.appts;
+  document.getElementById('dStat2').textContent = data.stats.done;
+  document.getElementById('dStat3').textContent = data.stats.pending;
+  document.getElementById('dStat4').textContent = data.stats.total;
+  document.getElementById('dSchedCount').textContent = (data.schedule ? data.schedule.length : 0) + ' appointments';
+  document.getElementById('dPatCount').textContent   = (data.patients ? data.patients.length : 0) + ' patients';
+  document.getElementById('dApptCount').textContent  = (data.schedule ? data.schedule.length : 0) + ' appointments';
+
+  // Proposed/Upcoming Schedule
+  document.getElementById('dSchedList').innerHTML = (data.schedule || []).map(s => {
+    const pc = s.status==='done'?'pill-sky':s.status==='confirmed'?'pill-green':'pill-amber';
+    const pl = s.status==='done'?'Done':s.status==='confirmed'?'Confirmed':'Pending';
+    return `<div class="sched-item">
+      <div class="sched-time">${s.time}</div>
+      <div class="sched-main"><div class="sched-name">${s.name}</div><div class="sched-note">${s.note}</div></div>
+      <span class="pill ${pc}">${pl}</span>
+    </div>`;
+  }).join('');
+
+  // Patient Records - Pull from PATIENT_DB
+  const allPatients = Object.values(PATIENT_DB).filter(p => 
+    p.upcoming?.some(u => u.dept === dept) || p.history?.some(h => h.dept === dept)
+  );
+  document.getElementById('dPatientBody').innerHTML = allPatients.length === 0 
+    ? '<tr><td colspan="6" style="text-align:center;padding:20px;">No patient records found for this department.</td></tr>'
+    : allPatients.map(p => {
+        const lastAppt = p.history?.[0] || p.upcoming?.[0] || { date: 'New', status: 'Pending' };
+        const statusCls = lastAppt.status === 'Done' ? 'pill-sky' : lastAppt.status === 'Confirmed' ? 'pill-green' : 'pill-amber';
+        return `<tr>
+          <td><div class="pt-cell"><div class="pt-avatar">${p.name[0]}</div><div><div class="pt-name">${p.name}</div><div class="pt-id">OPD · ${dept}</div></div></div></td>
+          <td>—</td><td>${p.phone}</td>
+          <td><span class="dept-tag">${lastAppt.reason || 'Consultation'}</span></td>
+          <td>${lastAppt.date}</td><td><span class="pill ${statusCls}">${lastAppt.status}</span></td>
+        </tr>`;
+      }).join('');
+
+  // Appointments Table
+  document.getElementById('dApptBody').innerHTML = (data.schedule || []).length === 0
+    ? '<tr><td colspan="6" style="text-align:center;padding:20px;">No appointments found.</td></tr>'
+    : data.schedule.map((s,i) => {
+        const pc = s.status==='done'?'pill-sky':s.status==='confirmed'?'pill-green':'pill-amber';
+        const pl = s.status==='done'?'Done':s.status==='confirmed'?'Confirmed':'Pending';
+        const types = ['Follow-up','Initial Consult','Monitoring','Check-up','Consult'];
+        return `<tr>
+          <td><span class="sched-time">${s.time}</span></td>
+          <td><strong>${s.name}</strong></td>
+          <td>${s.note.split(' · ')[0]}</td>
+          <td>${types[i%5]}</td>
+          <td style="font-size:.8rem;color:var(--text-muted);">${s.note.split('· ')[1]||'—'}</td>
+          <td><span class="pill ${pc}">${pl}</span></td>
+        </tr>`;
+      }).join('');
+
+  renderDoctorQueue(dept);
+}
+
+// ════════════════════════════════════════════════
+//  DOCTOR QUEUE RENDERING
+// ════════════════════════════════════════════════
+function renderDoctorQueue(dept) {
+  const { total, done, serving, waiting, q } = getQueueStats(dept);
+  const progress = `${done} / ${total}`;
+  const estMins  = waiting * CONSULT_MINS;
+  const estText  = estMins > 0 ? `~${estMins} min` : 'Done';
+
+  document.getElementById('dQNowServing').textContent = serving;
+  document.getElementById('dQProgress').textContent   = progress;
+  document.getElementById('dQWaiting').textContent    = waiting;
+  document.getElementById('dQEstTime').textContent    = estText;
+  document.getElementById('dQCount').textContent      = total + ' patients';
+
+  const hasStarted = q.some(e => e.status === 'serving' || e.status === 'done');
+  document.getElementById('dBtnStart').style.display = hasStarted ? 'none' : 'inline-block';
+  document.getElementById('dBtnNext').disabled = waiting === 0;
+
+  document.getElementById('dQueueList').innerHTML = q.length === 0
+    ? '<div style="padding:28px 24px;text-align:center;color:var(--text-muted);">No patients in queue for this department today.</div>'
+    : q.map((entry, idx) => {
+        const ahead = q.slice(0, idx).filter(e => e.status==='confirmed'||e.status==='pending'||e.status==='serving').length;
+        const waitMin = ahead * CONSULT_MINS;
+        const waitTxt = entry.status==='serving' ? '🟢 Now Serving' :
+                        entry.status==='done'     ? '✅ Done' :
+                        entry.status==='declined' ? '❌ Declined' :
+                        waitMin > 0 ? `~${waitMin} min wait` : 'Up next';
+        const numCls  = 'qi-num-' + entry.status;
+        const itemCls = entry.status==='serving' ? 'qi-serving' : entry.status==='done' ? 'qi-done' : entry.status==='declined' ? 'qi-declined' : '';
+
+        let actions = '';
+        if (entry.status === 'pending') {
+          actions = `<button class="q-btn q-btn-success" onclick="doctorAcceptPatient('${dept}','${entry.qNum}')">✓ Accept</button>
+                     <button class="q-btn q-btn-danger"  onclick="doctorDeclinePatient('${dept}','${entry.qNum}')">✕ Decline</button>`;
+        } else if (entry.status === 'confirmed') {
+          actions = `<button class="q-btn q-btn-success" onclick="doctorServingPatient('${dept}','${entry.qNum}')">▶ Serve Now</button>
+                     <button class="q-btn q-btn-danger"  onclick="doctorDeclinePatient('${dept}','${entry.qNum}')">✕ Decline</button>`;
+        } else if (entry.status === 'serving') {
+          actions = `<button class="q-btn q-btn-primary" onclick="doctorDonePatient('${dept}','${entry.qNum}')">✓ Mark Done</button>`;
+        }
+
+        return `<div class="queue-item ${itemCls}">
+          <div class="qi-num ${numCls}">${entry.qNum}</div>
+          <div class="qi-main">
+            <div class="qi-name">${entry.name}</div>
+            <div class="qi-meta">${entry.time} · ${entry.reason} · ${entry.ref}</div>
+            <div class="qi-wait">${waitTxt}</div>
+          </div>
+          <div class="qi-actions">${actions}</div>
+        </div>`;
+      }).join('');
+}
+
+// ── DOCTOR QUEUE ACTIONS ───────────────────────
+async function doctorStartQueue() {
+  const dept = _currentDoctorDept;
+  const q = QUEUE_DB[dept] || [];
+  const first = q.find(e => e.status==='confirmed'||e.status==='pending');
+  if (first) {
+    first.status = 'serving';
+    await syncPatientAppointmentStatus(first.email, first.qNum, 'serving');
+    await addNotification(first.email, 'serving', 'Consultation Started', 'Consultation is now ongoing. Please prepare for your turn.');
+  }
+  // Notify all waiting patients about ongoing consultation
+  const waiting = q.filter(e => e.status==='confirmed'||e.status==='pending');
+  for (const e of waiting) {
+    await addNotification(e.email, 'info', 'Ongoing Consultation', 'Consultation is currently ongoing. Please prepare for your turn.');
+  }
+  
+  // Save Queue DB
+  try {
+    await fetch('http://127.0.0.1:3000/api/queues', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ dept, entries: q })
+    });
+  } catch (error) { console.error('Failed to save queue to DB:', error); }
+
+  renderDoctorQueue(dept);
+  loadNurseQueueMonitor();
+}
+
+async function doctorNextQueue() {
+  const dept = _currentDoctorDept;
+  const q    = QUEUE_DB[dept] || [];
+  const cur  = q.find(e => e.status==='serving');
+  if (cur) {
+    cur.status = 'done';
+    await syncPatientAppointmentStatus(cur.email, cur.qNum, 'done');
+  }
+  const nxt  = q.find(e => e.status==='confirmed');
+  if (nxt) {
+    nxt.status = 'serving';
+    await syncPatientAppointmentStatus(nxt.email, nxt.qNum, 'serving');
+    await addNotification(nxt.email, 'serving', 'It Is Now Your Turn!', `It is now your turn. Please proceed to the ${dept} consultation room.`);
+    // Warn the one after next
+    const afterIdx = q.indexOf(nxt) + 1;
+    const after = q[afterIdx];
+    if (after && (after.status==='confirmed'||after.status==='pending')) {
+      const waitMins = CONSULT_MINS;
+      await addNotification(after.email, 'warning', 'Your Turn Is Approaching', `Your turn is approaching. Approximately ${waitMins} minutes remaining.`);
+    }
+  }
+
+  // Save Queue DB
+  try {
+    await fetch('http://127.0.0.1:3000/api/queues', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ dept, entries: q })
+    });
+  } catch (error) { console.error('Failed to save queue to DB:', error); }
+
+  renderDoctorQueue(dept);
+  loadNurseQueueMonitor();
+}
+
+async function syncPatientAppointmentStatus(email, qNum, newStatus) {
+  if (!email || !PATIENT_DB[email]) return;
+  const pt = PATIENT_DB[email];
+  const appt = pt.upcoming.find(a => a.qNum === qNum);
+  if (appt) {
+    appt.status = newStatus;
+    if (newStatus === 'done') {
+      // Move to history if done
+      pt.upcoming = pt.upcoming.filter(a => a.qNum !== qNum);
+      pt.history.unshift(appt);
+    }
+    // Save to DB
+    try {
+      await fetch('http://127.0.0.1:3000/api/patients', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(pt)
+      });
+      await fetchPatientDb();
+    } catch (error) { console.error('Failed to sync patient appointment status:', error); }
+  }
+}
+
+async function doctorAcceptPatient(dept, qNum) {
+  const q = QUEUE_DB[dept] || [];
+  const entry = q.find(e => e.qNum===qNum);
+  if (!entry) return;
+  entry.status = 'confirmed';
+  await addNotification(entry.email, 'success', 'Appointment Confirmed',
+    `Your appointment has been confirmed. Your queue number is ${qNum}.`);
+
+  // Sync with patient record
+  await syncPatientAppointmentStatus(entry.email, qNum, 'confirmed');
+
+  // Save Queue DB
+  try {
+    await fetch('http://127.0.0.1:3000/api/queues', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ dept, entries: q })
+    });
+  } catch (error) { console.error('Failed to save queue to DB:', error); }
+
+  renderDoctorQueue(dept);
+  loadNurseQueueMonitor();
+}
+
+async function doctorDeclinePatient(dept, qNum) {
+  const q = QUEUE_DB[dept] || [];
+  const entry = q.find(e => e.qNum===qNum);
+  if (!entry) return;
+  entry.status = 'declined';
+  await addNotification(entry.email, 'danger', 'Appointment Declined',
+    'Your appointment request has been declined. Please select another schedule.');
+  
+  // Sync with patient record
+  await syncPatientAppointmentStatus(entry.email, qNum, 'declined');
+
+  // Save Queue DB
+  try {
+    await fetch('http://127.0.0.1:3000/api/queues', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ dept, entries: q })
+    });
+  } catch (error) { console.error('Failed to save queue to DB:', error); }
+
+  renderDoctorQueue(dept);
+  loadNurseQueueMonitor();
+}
+
+async function doctorServingPatient(dept, qNum) {
+  const q = QUEUE_DB[dept] || [];
+  const cur = q.find(e => e.status==='serving');
+  if (cur) {
+    cur.status = 'done';
+    await syncPatientAppointmentStatus(cur.email, cur.qNum, 'done');
+  }
+  const entry = q.find(e => e.qNum===qNum);
+  if (entry) {
+    entry.status = 'serving';
+    await syncPatientAppointmentStatus(entry.email, entry.qNum, 'serving');
+    await addNotification(entry.email, 'serving', 'It Is Now Your Turn!', `It is now your turn. Please proceed to the ${dept} consultation room.`);
+    // Warn next in line
+    const idx = q.indexOf(entry);
+    const after = q[idx+1];
+    if (after && (after.status==='confirmed'||after.status==='pending')) {
+      await addNotification(after.email, 'warning', 'Your Turn Is Approaching', `Your turn is approaching. Approximately ${CONSULT_MINS} minutes remaining.`);
+    }
+  }
+
+  // Save Queue DB
+  try {
+    await fetch('http://127.0.0.1:3000/api/queues', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ dept, entries: q })
+    });
+  } catch (error) { console.error('Failed to save queue to DB:', error); }
+
+  renderDoctorQueue(dept);
+  loadNurseQueueMonitor();
+}
+
+async function doctorDonePatient(dept, qNum) {
+  const q = QUEUE_DB[dept] || [];
+  const entry = q.find(e => e.qNum===qNum);
+  if (entry) {
+    entry.status = 'done';
+    await syncPatientAppointmentStatus(entry.email, entry.qNum, 'done');
+  }
+  // Auto-serve next confirmed
+  const nxt = q.find(e => e.status==='confirmed');
+  if (nxt) {
+    nxt.status = 'serving';
+    await syncPatientAppointmentStatus(nxt.email, nxt.qNum, 'serving');
+    await addNotification(nxt.email, 'serving', 'It Is Now Your Turn!', `It is now your turn. Please proceed to the ${dept} consultation room.`);
+    const nxtIdx = q.indexOf(nxt);
+    const after  = q[nxtIdx+1];
+    if (after && (after.status==='confirmed'||after.status==='pending')) {
+      await addNotification(after.email, 'warning', 'Your Turn Is Approaching', `Your turn is approaching. Approximately ${CONSULT_MINS} minutes remaining.`);
+    }
+  }
+
+  // Save Queue DB
+  try {
+    await fetch('http://127.0.0.1:3000/api/queues', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ dept, entries: q })
+    });
+  } catch (error) { console.error('Failed to save queue to DB:', error); }
+
+  renderDoctorQueue(dept);
+  loadNurseQueueMonitor();
+}
+
+// ════════════════════════════════════════════════
+//  NURSE QUEUE MONITOR
+// ════════════════════════════════════════════════
+function loadNurseQueueMonitor() {
+  const grid = document.getElementById('nQueueGrid');
+  if (!grid) return;
+  const depts = ['General Medicine','Pediatrics','Orthopedics','Cardiology','ENT','Oncology'];
+
+  grid.innerHTML = depts.map(dept => {
+    const q = QUEUE_DB[dept] || [];
+    if (q.length === 0) return '';
+    const stats = getQueueStats(dept);
+    const servingEntry = q.find(e => e.status==='serving');
+    const servingLabel = servingEntry ? servingEntry.qNum : '—';
+
+    const rows = q.map(e => {
+      const cls = e.status==='serving' ? 'nq-serving' : e.status==='done' ? 'nq-done' : e.status==='declined' ? 'nq-declined' : '';
+      const icon = e.status==='serving'?'▶':e.status==='done'?'✓':e.status==='declined'?'✕':'·';
+      return `<div class="nq-item ${cls}">
+        <span class="nq-qnum">${e.qNum}</span>
+        <span class="nq-pname">${e.name}</span>
+        <span class="nq-time">${e.time}</span>
+        <span style="font-size:.75rem;color:var(--text-muted);margin-left:4px;">${icon}</span>
+      </div>`;
+    }).join('');
+
+    const waiting = stats.waiting;
+    const estMins = waiting * CONSULT_MINS;
+    return `<div class="nq-card">
+      <div class="nq-card-header">
+        <div>
+          <div class="nq-dept">${dept}</div>
+          <div style="font-size:.75rem;color:var(--text-muted);margin-top:2px;">${stats.done}/${stats.total} done · ${waiting} waiting</div>
+        </div>
+        <div class="nq-serving-badge">Now: ${servingLabel}</div>
+      </div>
+      <div class="nq-list">${rows}</div>
+      <div class="nq-footer">
+        <span>${stats.total} total patients</span>
+        <span>Est. remaining: ~${estMins} min</span>
+      </div>
+    </div>`;
+  }).filter(Boolean).join('');
+}
+
+function loadNurseDashboard() {
+  const allQueues = Object.values(QUEUE_DB).flat();
+  const activeDepts = Object.keys(QUEUE_DB).length;
+  const totalAppointments = allQueues.length;
+  const totalPatientsToday = new Set(allQueues.map(e => e.name)).size;
+  
+  // Count doctors who actually have accounts in the system
+  const doctorsWithAccounts = Object.values(ACCOUNTS).filter(u => u.role === 'doctor').length;
+
+  document.getElementById('nStat1').textContent = doctorsWithAccounts;
+  document.getElementById('nStat2').textContent = totalPatientsToday;
+  document.getElementById('nStat3').textContent = totalAppointments;
+  document.getElementById('nStat4').textContent = activeDepts;
+
+  loadNurseDoctors();
+  loadNursePatients();
+  loadNurseDepts();
+}
+
+function calculateAge(dob) {
+  if (!dob || dob === '—') return '—';
+  const birthDate = new Date(dob);
+  if (isNaN(birthDate)) return '—';
+  const today = new Date();
+  let age = today.getFullYear() - birthDate.getFullYear();
+  const m = today.getMonth() - birthDate.getMonth();
+  if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) age--;
+  return age;
+}
+
+function loadNurseDoctors() {
+  const body = document.getElementById('nDocBody');
+  const countBadge = document.getElementById('nDocCount');
+  if (!body) return;
+
+  const doctors = [];
+  const allQueueEntries = Object.values(QUEUE_DB).flat();
+
+  for (const dept in DEPT_DOCTORS) {
+    DEPT_DOCTORS[dept].forEach(docName => {
+      // Count appointments for this specific doctor
+      const apptCount = allQueueEntries.filter(e => e.doctor === docName).length;
+      
+      // Check if doctor has an account in users collection
+      const user = Object.values(ACCOUNTS).find(u => u.name === docName && u.role === 'doctor');
+      
+      let statusLabel = 'No Account';
+      let statusCls = 'pill-slate';
+      
+      if (user) {
+        if (apptCount > 0) {
+          statusLabel = 'On Duty';
+          statusCls = 'pill-green';
+        } else {
+          statusLabel = 'Active';
+          statusCls = 'pill-sky';
+        }
+      }
+
+      doctors.push({
+        name: docName,
+        dept: dept,
+        initials: user ? user.initials : docName.split(' ').map(n => n[0]).join('').slice(-2).toUpperCase(),
+        shift: (user && user.shift) ? user.shift : '8:00 AM – 5:00 PM',
+        appointments: apptCount,
+        status: statusLabel,
+        statusCls: statusCls
+      });
+    });
+  }
+
+  countBadge.textContent = `${doctors.length} doctors`;
+  body.innerHTML = doctors.map(d => {
+    return `<tr>
+      <td><div class="pt-cell"><div class="pt-avatar">${d.initials}</div><div><div class="pt-name">${d.name}</div><div class="pt-id">${d.dept}</div></div></div></td>
+      <td><span class="dept-tag">${d.dept}</span></td>
+      <td>${d.shift}</td><td>${d.appointments}</td>
+      <td><span class="pill ${d.statusCls}">${d.status}</span></td>
+    </tr>`;
+  }).join('');
+}
+
+function loadNursePatients() {
+  const body = document.getElementById('nPatBody');
+  const countBadge = document.getElementById('nPatCount');
+  if (!body) return;
+
+  const allQueues = [];
+  for (const dept in QUEUE_DB) {
+    QUEUE_DB[dept].forEach(e => {
+      allQueues.push({
+        ...e,
+        dept: dept,
+        doctor: e.doctor || (DEPT_DOCTORS[dept] || [])[0] || 'TBD'
+      });
+    });
+  }
+
+  // Sort by time
+  allQueues.sort((a, b) => {
+    const timeA = new Date('1970/01/01 ' + a.time);
+    const timeB = new Date('1970/01/01 ' + b.time);
+    return timeA - timeB;
+  });
+
+  countBadge.textContent = `${allQueues.length} appointments`;
+  body.innerHTML = allQueues.length === 0
+    ? '<tr><td colspan="7" style="text-align:center;padding:20px;">No patient schedule found for today.</td></tr>'
+    : allQueues.map(e => {
+        const pc = e.status==='done'?'pill-sky':e.status==='confirmed'?'pill-green':'pill-amber';
+        const pl = e.status==='done'?'Done':e.status==='confirmed'?'Confirmed':'Pending';
+        
+        // Find age from PATIENT_DB if email is available
+        let age = '—';
+        if (e.email && PATIENT_DB[e.email]) {
+          age = calculateAge(PATIENT_DB[e.email].dob);
+        }
+        
+        return `<tr>
+          <td><span class="sched-time">${e.time}</span></td>
+          <td><strong>${e.name}</strong></td>
+          <td>${age}</td>
+          <td>${e.reason}</td>
+          <td>${e.doctor}</td>
+          <td><span class="dept-tag">${e.dept}</span></td>
+          <td><span class="pill ${pc}">${pl}</span></td>
+        </tr>`;
+      }).join('');
+}
+
+function loadNurseDepts() {
+  const grid = document.getElementById('nDeptGrid');
+  if (!grid) return;
+
+  const depts = Object.keys(DEPT_DOCTORS);
+  grid.innerHTML = depts.map(dept => {
+    const stats = getQueueStats(dept);
+    const doctorList = DEPT_DOCTORS[dept] || [];
+    const doctorsStr = doctorList.join(', ');
+    
+    // Find shift from the first doctor in the list
+    const firstDoc = Object.values(ACCOUNTS).find(u => u.name === doctorList[0]) || { shift: '8:00 AM – 5:00 PM' };
+    const shiftHours = firstDoc.shift || '8:00 AM – 5:00 PM';
+
+    const servingLabel = stats.serving !== '—' ? `Now serving: <strong>${stats.serving}</strong>` : 'Queue not started';
+    const statusCls = stats.total > 0 ? 'pill-green' : 'pill-amber';
+    const statusLabel = stats.total > 0 ? 'Active' : 'Starting Soon';
+    const dotCls = stats.total > 0 ? 'dot-sage' : 'dot-amber';
+
+    return `<div class="panel">
+      <div class="panel-header">
+        <span class="panel-title"><span class="dot ${dotCls}"></span>${dept}</span>
+        <span class="pill ${statusCls}">${statusLabel}</span>
+      </div>
+      <div style="padding:18px 24px;">
+        <p style="font-size:.82rem;color:var(--text-muted);margin-bottom:12px;">${servingLabel} · ${stats.total} patients today</p>
+        <p style="font-size:.82rem;margin-bottom:6px;"><strong>Doctors:</strong> ${doctorsStr}</p>
+        <p style="font-size:.82rem;"><strong>Shift:</strong> ${shiftHours}</p>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ════════════════════════════════════════════════
+//  PATIENT DASHBOARD
+// ════════════════════════════════════════════════
+function loadPatientDashboard(email, user) {
+  const rec = PATIENT_DB[email] || {
+    name:user.name, dob:'—', sex:'—', phone:'—', address:'—', email,
+    notifications:[], upcoming:[], history:[],
+  };
+
+  document.getElementById('ptAvatar').textContent = user.initials;
+  document.getElementById('ptName').textContent   = user.name;
+  const hour = new Date().getHours();
+  const tod  = hour<12?'Good morning':hour<17?'Good afternoon':'Good evening';
+  document.getElementById('ptGreet').textContent    = `${tod}, ${user.short} 👋`;
+  document.getElementById('ptGreetSub').textContent = "Here's your OPD Smart Care patient overview.";
+
+  document.getElementById('ptStat1').textContent = rec.upcoming.length;
+  document.getElementById('ptStat2').textContent = rec.history.length;
+  document.getElementById('ptStat3').textContent = rec.upcoming[0]?.dept || '—';
+
+  // Queue number from first confirmed upcoming appt
+  const withQueue = rec.upcoming.find(a => a.qNum);
+  document.getElementById('ptStat4').textContent = withQueue ? withQueue.qNum : '—';
+
+  document.getElementById('ptUpcomingCount').textContent = rec.upcoming.length + ' appointments';
+  document.getElementById('ptDateBadge').textContent =
+    new Date().toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+
+  renderPatientNotifications(email);
+
+  // Upcoming appointments
+  const ul = document.getElementById('ptUpcomingList');
+  if (rec.upcoming.length === 0) {
+    ul.innerHTML = '<div style="padding:28px 24px;text-align:center;color:var(--text-muted);">No upcoming appointments. <button onclick="showScreen(\'opdBookScreen\')" style="background:none;border:none;color:var(--sage);font-weight:600;cursor:pointer;text-decoration:underline;">Book one now →</button></div>';
+  } else {
+    ul.innerHTML = rec.upcoming.map(a => {
+      const pc = a.status==='confirmed'?'pill-green':a.status==='done'?'pill-sky':a.status==='declined'?'pill-rose':'pill-amber';
+      const qTag = a.qNum ? `<span style="background:var(--sage-pale);color:var(--sage);padding:2px 8px;border-radius:6px;font-size:.75rem;font-weight:700;margin-left:6px;">${a.qNum}</span>` : '';
+      return `<div class="pt-appt-item">
+        <div class="pt-appt-time">
+          <div class="sched-time">${a.time}</div>
+          <div style="font-size:.74rem;color:var(--text-muted);margin-top:4px;">${a.date}</div>
+        </div>
+        <div class="pt-appt-main">
+          <div class="pt-appt-name">${a.doctor}${qTag}</div>
+          <div class="pt-appt-note">${a.reason} · <span class="dept-tag">${a.dept}</span></div>
+        </div>
+        <div style="text-align:right;">
+          <span class="pill ${pc}">${a.status.charAt(0).toUpperCase()+a.status.slice(1)}</span>
+          <div style="font-size:.74rem;color:var(--text-muted);margin-top:4px;">${a.ref}</div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  // Queue tab
+  renderPatientQueueTab(email);
+
+  // History
+  document.getElementById('ptHistoryBody').innerHTML = rec.history.map(h =>
+    `<tr>
+      <td>${h.date}</td><td><strong>${h.doctor}</strong></td>
+      <td><span class="dept-tag">${h.dept}</span></td>
+      <td>${h.reason}</td>
+      <td><span class="pill pill-sky">${h.status}</span></td>
+    </tr>`
+  ).join('');
+
+  // Info
+  document.getElementById('ptInfoBody').innerHTML = `
+    <div class="pt-info-grid">
+      <div class="pt-info-field"><label>Full Name</label><p>${rec.name}</p></div>
+      <div class="pt-info-field"><label>Email</label><p>${rec.email}</p></div>
+      <div class="pt-info-field"><label>Date of Birth</label><p>${rec.dob}</p></div>
+      <div class="pt-info-field"><label>Sex</label><p>${rec.sex}</p></div>
+      <div class="pt-info-field"><label>Contact Number</label><p>${rec.phone}</p></div>
+      <div class="pt-info-field"><label>Address</label><p>${rec.address}</p></div>
+    </div>`;
+
+  switchPatientTab('upcoming', document.querySelector('#patientDashScreen .tab-btn'));
+}
+
+function renderPatientQueueTab(email) {
+  const rec = PATIENT_DB[email];
+  const container = document.getElementById('ptQueueContent');
+  if (!container) return;
+
+  const queued = rec ? rec.upcoming.filter(a => a.qNum && a.status !== 'declined') : [];
+  if (queued.length === 0) {
+    container.innerHTML = `<div class="panel"><div style="padding:40px 24px;text-align:center;color:var(--text-muted);">
+      <div style="font-size:2.5rem;margin-bottom:12px;">🔢</div>
+      <p style="font-weight:600;margin-bottom:6px;">No Active Queue</p>
+      <p style="font-size:.85rem;">Book an appointment to receive your queue number.</p>
+      <button onclick="showScreen('opdBookScreen')" class="opd-btn-primary" style="margin-top:16px;padding:10px 20px;">Book Appointment</button>
+    </div></div>`;
+    return;
+  }
+
+  container.innerHTML = queued.map(appt => {
+    const dept   = appt.dept;
+    const qEntry = (QUEUE_DB[dept]||[]).find(e => e.qNum === appt.qNum);
+    const stats  = getQueueStats(dept);
+    const waitMins = estimateWait(dept, appt.qNum);
+    const q = QUEUE_DB[dept] || [];
+    const totalQ = q.filter(e => e.status!=='declined').length;
+    const doneQ  = q.filter(e => e.status==='done').length;
+    const pct = totalQ > 0 ? Math.round((doneQ/totalQ)*100) : 0;
+    const myStatus = qEntry ? qEntry.status : appt.status;
+    const statusLabel = myStatus==='serving'?'Now Serving':myStatus==='done'?'Consultation Done':myStatus==='declined'?'Declined':myStatus==='confirmed'?'Confirmed':'Pending';
+
+    let statusEmoji = '⏳';
+    if (myStatus==='serving') statusEmoji = '🟢';
+    if (myStatus==='done')    statusEmoji = '✅';
+    if (myStatus==='declined')statusEmoji = '❌';
+    if (myStatus==='confirmed')statusEmoji = '✓';
+
+    return `<div class="pt-queue-card" style="margin-bottom:20px;">
+      <div class="ptq-label">Your Queue Number</div>
+      <div class="ptq-qnum">${appt.qNum}</div>
+      <div class="ptq-info">
+        <div class="ptq-field"><label>Doctor</label><p>${appt.doctor}</p></div>
+        <div class="ptq-field"><label>Department</label><p>${dept}</p></div>
+        <div class="ptq-field"><label>Date & Time</label><p>${appt.date} · ${appt.time}</p></div>
+        <div class="ptq-field"><label>Status</label><p>${statusEmoji} ${statusLabel}</p></div>
+        <div class="ptq-field"><label>Now Serving</label><p>${stats.serving}</p></div>
+        <div class="ptq-field"><label>Est. Wait</label><p>${waitMins===0?'Your turn!':waitMins>0?`~${waitMins} min`:'—'}</p></div>
+      </div>
+      <div class="ptq-progress">
+        <div class="ptq-progress-bar" style="width:${pct}%;"></div>
+      </div>
+      <div class="ptq-progress-txt">${doneQ} of ${totalQ} patients seen · ${100-pct}% remaining</div>
+    </div>`;
+  }).join('') + `<div class="panel">
+    <div class="panel-header"><span class="panel-title"><span class="dot dot-sage"></span>Queue Tips</span></div>
+    <div style="padding:20px 24px;display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+      <div style="background:var(--offwhite);border-radius:var(--radius-sm);padding:14px;">
+        <div style="font-weight:700;font-size:.85rem;margin-bottom:4px;">⏱ Avg Consultation</div>
+        <div style="font-size:.8rem;color:var(--text-muted);">Each consultation takes approximately ${CONSULT_MINS} minutes.</div>
+      </div>
+      <div style="background:var(--offwhite);border-radius:var(--radius-sm);padding:14px;">
+        <div style="font-weight:700;font-size:.85rem;margin-bottom:4px;">🔔 Stay Notified</div>
+        <div style="font-size:.8rem;color:var(--text-muted);">Check your notifications tab for real-time updates on your turn.</div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function renderPatientNotifications(email) {
+  const rec = PATIENT_DB[email];
+  const area = document.getElementById('ptNotifArea');
+  if (!area || !rec) return;
+  const notifs = rec.notifications || [];
+  if (notifs.length === 0) { area.innerHTML = ''; return; }
+
+  const typeConfig = {
+    success: { icon:'✅', title:'Confirmed',        cls:'notif-success' },
+    warning: { icon:'⚠️', title:'Reminder',         cls:'notif-warning' },
+    danger:  { icon:'❌', title:'Declined',          cls:'notif-danger'  },
+    info:    { icon:'ℹ️', title:'Notice',            cls:'notif-info'    },
+    serving: { icon:'🔔', title:'Now Serving',       cls:'notif-serving' },
+  };
+
+  area.innerHTML = `<div class="pt-notif-panel">` +
+    notifs.slice(0,5).map((n,i) => {
+      const cfg = typeConfig[n.type] || typeConfig.info;
+      return `<div class="pt-notif ${cfg.cls}">
+        <div class="pt-notif-icon">${cfg.icon}</div>
+        <div class="pt-notif-body">
+          <div class="pt-notif-title">${n.title}</div>
+          <div class="pt-notif-msg">${n.msg}</div>
+          <div class="pt-notif-time">${n.time}</div>
+        </div>
+        <button class="pt-notif-close" onclick="dismissNotif(${i})">✕</button>
+      </div>`;
+    }).join('') +
+  `</div>`;
+}
+
+async function dismissNotif(idx) {
+  const rec = PATIENT_DB[_currentPatientEmail];
+  if (rec && rec.notifications) {
+    rec.notifications.splice(idx, 1);
+    // Save to DB
+    try {
+      await fetch('http://127.0.0.1:3000/api/patients', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(rec)
+      });
+    } catch (error) { console.error('Failed to save patient notifications to DB:', error); }
+  }
+  renderPatientNotifications(_currentPatientEmail);
+}
+
+// ════════════════════════════════════════════════
+//  TAB SWITCHERS
+// ════════════════════════════════════════════════
+function switchDoctorTab(name, btn) {
+  ['proposed','patients','appointments','queue','availability'].forEach(t => {
+    document.getElementById('dTab-'+t).classList.toggle('hidden', t!==name);
+  });
+  document.querySelectorAll('#doctorView .tab-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  if (name==='queue' && _currentDoctorDept) renderDoctorQueue(_currentDoctorDept);
+}
+
+function switchNurseTab(name, btn) {
+  ['ndoctors','npatients','nqueue','ndepts'].forEach(t => {
+    document.getElementById('nTab-'+t).classList.toggle('hidden', t!==name);
+  });
+  document.querySelectorAll('#nurseView .tab-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  
+  if (name==='nqueue') loadNurseQueueMonitor();
+  if (name==='ndoctors') loadNurseDoctors();
+  if (name==='npatients') loadNursePatients();
+  if (name==='ndepts') loadNurseDepts();
+}
+
+function switchPatientTab(name, btn) {
+  ['upcoming','queue','history','info'].forEach(t => {
+    document.getElementById('ptTab-'+t).classList.toggle('hidden', t!==name);
+  });
+  document.querySelectorAll('#patientDashScreen .tab-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  if (name==='queue' && _currentPatientEmail) renderPatientQueueTab(_currentPatientEmail);
+}
+
+// ════════════════════════════════════════════════
+//  LOGOUT
+// ════════════════════════════════════════════════
+function doLogout() {
+  _currentDoctorDept = null;
+  showScreen('loginScreen');
+  selectRole('doctor'); // Default role
+  document.getElementById('loginEmail').value = '';
+  document.getElementById('loginPass').value  = '';
+  document.getElementById('loginDept').value  = '';
+  document.getElementById('loginError').style.display = 'none';
+}
+function patientLogout() {
+  _currentPatientEmail = null;
+  showScreen('loginScreen');
+  document.getElementById('loginEmail').value = '';
+  document.getElementById('loginPass').value  = '';
+  selectRole('patient');
+}
+
+// ════════════════════════════════════════════════
+//  AVAILABILITY TOGGLES
+// ════════════════════════════════════════════════
+function toggleDay(btn)  { btn.classList.toggle('on'); }
+function toggleSlot(btn) {
+  const isOn = btn.classList.contains('on');
+  btn.classList.toggle('on', !isOn);
+  btn.classList.toggle('off', isOn);
+  const time = btn.textContent.replace(/[✓✗]\s*$/, '').trim();
+  btn.textContent = isOn ? time + ' ✗' : time + ' ✓';
+}
+
+// ════════════════════════════════════════════════
+//  PATIENT REGISTRATION
+// ════════════════════════════════════════════════
+async function submitRegistration() {
+  const fname = document.getElementById('regFname').value.trim();
+  const lname = document.getElementById('regLname').value.trim();
+  const email = document.getElementById('regEmail').value.trim().toLowerCase();
+  const phone = document.getElementById('regPhone').value.trim();
+  const dob   = document.getElementById('regDob').value;
+  const sex   = document.getElementById('regSex').value;
+  const addr  = document.getElementById('regAddress').value.trim();
+  const pass  = document.getElementById('regPass').value;
+  const pass2 = document.getElementById('regPass2').value;
+  const errEl = document.getElementById('regError');
+  errEl.style.display = 'none';
+
+  if (!fname||!lname||!email||!phone||!dob||!sex||!pass) {
+    errEl.textContent = 'Please fill in all required fields.'; errEl.style.display = 'block'; return;
+  }
+  if (pass !== pass2) { errEl.textContent = 'Passwords do not match.'; errEl.style.display = 'block'; return; }
+  if (pass.length < 6) { errEl.textContent = 'Password must be at least 6 characters.'; errEl.style.display = 'block'; return; }
+
+  const fullName = fname + ' ' + lname;
+  const initials = (fname[0] + lname[0]).toUpperCase();
+  
+  const newUser = { email, pass, role:'patient', name:fullName, short:fname, initials };
+  const newPatient = { name:fullName, dob, sex, phone, address:addr, email, notifications:[], upcoming:[], history:[] };
+
+  try {
+    // 1. Save to users collection
+    const userRes = await fetch('http://127.0.0.1:3000/api/users', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newUser)
+    });
+    
+    if (!userRes.ok) {
+      const data = await userRes.json();
+      throw new Error(data.message || 'Registration failed');
+    }
+
+    // 2. Save to patients collection
+    await fetch('http://127.0.0.1:3000/api/patients', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newPatient)
+    });
+
+    // Update local state
+    ACCOUNTS[email] = newUser;
+    PATIENT_DB[email] = newPatient;
+    
+    _currentPatientEmail = email;
+    loadPatientDashboard(email, ACCOUNTS[email]);
+    showScreen('patientDashScreen');
+    
+    // Clear form
+    ['regFname','regLname','regEmail','regPhone','regAddress','regPass','regPass2'].forEach(id => document.getElementById(id).value='');
+    document.getElementById('regDob').value = '';
+    document.getElementById('regSex').value = '';
+    
+  } catch (error) {
+    errEl.textContent = error.message;
+    errEl.style.display = 'block';
+  }
+}
+
+// ════════════════════════════════════════════════
+//  BOOKING FORM
+// ════════════════════════════════════════════════
+function updateDoctors() {
+  const dept = document.getElementById('bkDept').value;
+  const sel  = document.getElementById('bkDoctor');
+  const docs = DEPT_DOCTORS[dept] || [];
+  sel.innerHTML = docs.length
+    ? docs.map(d => `<option value="${d}">${d}</option>`).join('')
+    : '<option value="">No doctors available</option>';
+}
+
+async function submitBooking() {
+  const fname  = document.getElementById('bkFname').value.trim();
+  const lname  = document.getElementById('bkLname').value.trim();
+  const phone  = document.getElementById('bkPhone').value.trim();
+  const dept   = document.getElementById('bkDept').value;
+  const doctor = document.getElementById('bkDoctor').value;
+  const date   = document.getElementById('bkDate').value;
+  const time   = document.getElementById('bkTime').value;
+  const reason = document.getElementById('bkReason').value.trim();
+  const errEl  = document.getElementById('bkError');
+  errEl.style.display = 'none';
+
+  if (!fname||!lname||!phone||!dept||!doctor||!date||!time) {
+    errEl.textContent = 'Please fill in all required fields.'; errEl.style.display = 'block'; return;
+  }
+
+  // Assign queue number
+  const qNum   = assignQueueNumber(dept);
+  const refNum = 'REF-' + (Math.floor(Math.random()*90000)+10000);
+  const fmtDate = new Date(date).toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric',year:'numeric'});
+
+  const newEntry = {
+    qNum, name:`${fname} ${lname}`, time: time.split(' – ')[0],
+    date: fmtDate,
+    doctor: doctor, // Idagdag ang doktor dito para sa Nurse Dashboard
+    reason: reason || 'Outpatient Consultation',
+    ref: refNum, status:'pending',
+    email: _currentPatientEmail || null,
+    notifications: []
+  };
+
+  try {
+    // 1. Update Queue DB
+    if (!QUEUE_DB[dept]) QUEUE_DB[dept] = [];
+    QUEUE_DB[dept].push(newEntry);
+    
+    await fetch('http://127.0.0.1:3000/api/queues', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ dept, entries: QUEUE_DB[dept] })
+    });
+
+    // Re-fetch to sync DEPT_DATA
+    await fetchQueueDb();
+    if (_currentDoctorDept === dept) loadDoctorDashboard(dept);
+
+    // 2. Update Patient record if logged in
+    if (_currentPatientEmail) {
+      if (!PATIENT_DB[_currentPatientEmail]) {
+        const user = ACCOUNTS[_currentPatientEmail];
+        PATIENT_DB[_currentPatientEmail] = {
+          name: user ? user.name : fname + ' ' + lname,
+          dob: '—', sex: '—', phone: phone, address: '—',
+          email: _currentPatientEmail, notifications: [], upcoming: [], history: []
+        };
+      }
+      
+      const pt = PATIENT_DB[_currentPatientEmail];
+      const newAppt = { date:fmtDate, time:time.split(' – ')[0], doctor, dept, reason:reason||'Consultation', ref:refNum, status:'pending', qNum };
+      pt.upcoming.unshift(newAppt);
+      
+      await fetch('http://127.0.0.1:3000/api/patients', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(pt)
+      });
+      
+      // Re-fetch to sync PATIENT_DB
+      await fetchPatientDb();
+      
+      addNotification(_currentPatientEmail, 'info', 'Booking Received',
+        `Your appointment is pending confirmation by ${doctor}. Queue number: ${qNum}.`);
+    }
+
+    // Update modal
+    document.getElementById('bookingRef').textContent      = refNum;
+    document.getElementById('bookingQueueNumVal').textContent = qNum;
+    document.getElementById('bookingQueueNum').style.display  = 'block';
+    document.getElementById('bookingDetails').innerHTML =
+      `<strong>${fname} ${lname}</strong><br/>
+       📅 ${fmtDate} · ${time.split(' – ')[0]}<br/>
+       👨‍⚕️ ${doctor} — <span class="dept-tag">${dept}</span><br/>
+       ${reason ? '📋 ' + reason : ''}<br/>
+       <span style="font-size:.78rem;color:var(--text-muted);">Status: Awaiting doctor confirmation</span>`;
+
+    document.getElementById('bookingModal').classList.add('open');
+
+    // Clear form
+    ['bkFname','bkLname','bkPhone','bkReason'].forEach(id => document.getElementById(id).value='');
+    document.getElementById('bkDept').value   = '';
+    document.getElementById('bkDate').value   = '';
+    document.getElementById('bkTime').value   = '';
+    document.getElementById('bkDoctor').innerHTML = '<option value="">Select department first</option>';
+
+  } catch (error) {
+    errEl.textContent = 'Failed to save booking. Please try again.';
+    errEl.style.display = 'block';
+  }
+}
+
+function closeBookingModal(e) {
+  if (!e || e.target.id==='bookingModal') {
+    document.getElementById('bookingModal').classList.remove('open');
+    if (_currentPatientEmail) {
+      loadPatientDashboard(_currentPatientEmail, ACCOUNTS[_currentPatientEmail]);
+      showScreen('patientDashScreen');
+    }
+  }
+}
+
+// ════════════════════════════════════════════════
+//  INQUIRY
+// ════════════════════════════════════════════════
+function submitInquiry() {
+  const name  = document.getElementById('inqName').value.trim();
+  const email = document.getElementById('inqEmail').value.trim();
+  const msg   = document.getElementById('inqMsg').value.trim();
+  if (!name||!email||!msg) { alert('Please fill in all fields.'); return; }
+  alert(`✅ Message sent, ${name}! We will respond within 24 hours.`);
+  document.getElementById('inqName').value  = '';
+  document.getElementById('inqEmail').value = '';
+  document.getElementById('inqMsg').value   = '';
+}
+
+// ════════════════════════════════════════════════
+//  KEYBOARD + INIT
+// ════════════════════════════════════════════════
+document.addEventListener('keydown', e => {
+  if (e.key==='Enter' && document.getElementById('loginScreen').classList.contains('active')) doLogin();
+});
+window.addEventListener('load', () => {
+  const today = new Date().toISOString().split('T')[0];
+  const bkDate = document.getElementById('bkDate');
+  if (bkDate) bkDate.min = today;
+});
+document.addEventListener('DOMContentLoaded', async () => {
+  await fetchAccounts();
+  await fetchQueueDb();
+  await fetchPatientDb();
+  await fetchDeptData();
+  await fetchDeptDoctors();
+
+  // Initialize Landing Page Stats
+  renderHeroStats();
+  renderLandingDepartments();
+  renderLandingDoctors();
+  renderTokenBoard();
+  
+  // Initialize the view after all data is loaded
+  showScreen('loginScreen');
+  selectRole('doctor'); // Default role
+  
+  // Start real-time polling
+  startRealTimeUpdates();
+});
+
+</script>
+</body>
+</html>
