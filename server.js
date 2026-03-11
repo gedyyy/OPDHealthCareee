@@ -1,10 +1,20 @@
 const express = require('express');
 const cors = require('cors');
 const { MongoClient } = require('mongodb');
+const nodemailer = require('nodemailer');
 
 const app = express();
 app.use(cors());
 app.use(express.json());
+
+// Nodemailer configuration
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: process.env.GMAIL_USER, // Your Gmail address
+    pass: process.env.GMAIL_PASS  // Your Gmail App Password
+  }
+});
 
 const uri = process.env.MONGODB_URI; 
 
@@ -128,6 +138,30 @@ app.post('/api/queues', async (req, res) => {
   } catch (e) {
     console.error('Error updating queue:', e);
     res.status(500).send(e.message);
+  }
+});
+
+app.post('/api/inquiry', async (req, res) => {
+  const { name, email, msg } = req.body;
+
+  if (!name || !email || !msg) {
+    return res.status(400).json({ message: 'Missing fields' });
+  }
+
+  const mailOptions = {
+    from: process.env.GMAIL_USER, // The sender is the system
+    to: 'jmgedyyy@gmail.com',     // The destination Gmail
+    subject: `OPD Inquiry from ${name}`,
+    text: `Name: ${name}\nEmail: ${email}\n\nMessage:\n${msg}`,
+    replyTo: email                // So when the user clicks Reply, it goes to the patient's email
+  };
+
+  try {
+    await transporter.sendMail(mailOptions);
+    res.json({ message: 'Inquiry sent successfully' });
+  } catch (error) {
+    console.error('Error sending email:', error);
+    res.status(500).json({ message: 'Failed to send inquiry', error: error.message });
   }
 });
 

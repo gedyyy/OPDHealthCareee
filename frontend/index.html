@@ -3373,7 +3373,7 @@ function closeBookingModal(e) {
 // ════════════════════════════════════════════════
 //  INQUIRY
 // ════════════════════════════════════════════════
-function submitInquiry() {
+async function submitInquiry() {
   const name  = document.getElementById('inqName').value.trim();
   const email = document.getElementById('inqEmail').value.trim();
   const msg   = document.getElementById('inqMsg').value.trim();
@@ -3383,19 +3383,42 @@ function submitInquiry() {
     return; 
   }
 
-  const designatedGmail = "jmgedyyy@gmail.com";
-  const subject = encodeURIComponent(`OPD Inquiry from ${name}`);
-  const body = encodeURIComponent(`Name: ${name}\nEmail: ${email}\n\nMessage:\n${msg}`);
-  
-  // Open default email client
-  window.location.href = `mailto:${designatedGmail}?subject=${subject}&body=${body}`;
+  const btn = event.target;
+  const originalText = btn.innerText;
+  btn.disabled = true;
+  btn.innerText = 'Sending...';
 
-  alert(`✅ Thank you, ${name}! Your email client has been opened to send your inquiry.`);
-  
-  // Clear fields
-  document.getElementById('inqName').value  = '';
-  document.getElementById('inqEmail').value = '';
-  document.getElementById('inqMsg').value   = '';
+  try {
+    const response = await fetch('https://opdhealthcareee.onrender.com/api/inquiry', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, email, msg })
+    });
+
+    const result = await response.json();
+
+    if (response.ok) {
+      alert(`✅ Thank you, ${name}! Your inquiry has been sent directly to our team.`);
+      // Clear fields
+      document.getElementById('inqName').value  = '';
+      document.getElementById('inqEmail').value = '';
+      document.getElementById('inqMsg').value   = '';
+    } else {
+      throw new Error(result.message || 'Failed to send inquiry');
+    }
+  } catch (error) {
+    console.error('Inquiry error:', error);
+    alert('❌ Sorry, we encountered an error. Please try again later or use the mailto fallback.');
+    
+    // Fallback to mailto if API fails
+    const designatedGmail = "jmgedyyy@gmail.com";
+    const subject = encodeURIComponent(`OPD Inquiry from ${name}`);
+    const body = encodeURIComponent(`Name: ${name}\nEmail: ${email}\n\nMessage:\n${msg}`);
+    window.location.href = `mailto:${designatedGmail}?subject=${subject}&body=${body}`;
+  } finally {
+    btn.disabled = false;
+    btn.innerText = originalText;
+  }
 }
 
 // ════════════════════════════════════════════════
