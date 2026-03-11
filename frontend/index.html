@@ -1924,9 +1924,10 @@ select, input { font-family: 'Instrument Sans', sans-serif; }
 // ════════════════════════════════════════════════
 //  API CONFIGURATION
 // ════════════════════════════════════════════════
-// Change to 'http://localhost:3000' for local development
-// Change to BASE_URL + "' for production
-const BASE_URL = 'http://localhost:3000';
+// Auto-detect if running on localhost or production
+const BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+  ? 'http://localhost:3000' 
+  : 'https://opdhealthcareee-1.onrender.com';
 
 // ════════════════════════════════════════════════
 //  SCREEN MANAGER
