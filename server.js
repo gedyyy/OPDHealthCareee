@@ -20,14 +20,26 @@ app.use((req, res, next) => {
 // Nodemailer configuration
 const transporter = nodemailer.createTransport({
   host: 'smtp.gmail.com',
-  port: 465,
-  secure: true, // use SSL
+  port: 587,
+  secure: false, // true for 465, false for other ports
   auth: {
     user: process.env.GMAIL_USER,
     pass: process.env.GMAIL_PASS
   },
   tls: {
-    rejectUnauthorized: false // helps with some hosting provider blocks
+    rejectUnauthorized: false
+  },
+  connectionTimeout: 10000, // 10 seconds timeout
+  greetingTimeout: 10000,
+  socketTimeout: 10000
+});
+
+// Verify transporter on start
+transporter.verify(function(error, success) {
+  if (error) {
+    console.error('Nodemailer verification failed:', error);
+  } else {
+    console.log('Nodemailer is ready to send emails');
   }
 });
 
@@ -164,11 +176,11 @@ app.post('/api/inquiry', async (req, res) => {
   }
 
   const mailOptions = {
-    from: process.env.GMAIL_USER, // The sender is the system
-    to: 'jmgedyyy@gmail.com',     // The destination Gmail
+    from: process.env.GMAIL_USER, 
+    to: 'jmgedyyy@gmail.com', 
     subject: `OPD Inquiry from ${name}`,
     text: `Name: ${name}\nEmail: ${email}\n\nMessage:\n${msg}`,
-    replyTo: email                // So when the user clicks Reply, it goes to the patient's email
+    replyTo: email               
   };
 
   try {
