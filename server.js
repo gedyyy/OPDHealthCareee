@@ -1,35 +1,32 @@
 const express = require('express');
-const { MongoClient } = require('mongodb');
 const cors = require('cors');
+const { MongoClient } = require('mongodb');
 
 const app = express();
-const port = 3000;
-
-
-app.use(cors()); 
+app.use(cors());
 app.use(express.json());
 
-// Request logger
-app.use((req, res, next) => {
-  console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
-  next();
-});
+const uri = process.env.MONGODB_URI; 
 
+const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
 
-const uri = "mongodb://localhost:27017";
-const client = new MongoClient(uri);
+let db; // <-- Declare db globally
 
-let db;
-
-async function connectToDb() {
+async function connectDB() {
   try {
     await client.connect();
-    db = client.db('opd_queueing_system'); 
-    console.log('Connected to MongoDB');
-  } catch (e) {
-    console.error('MongoDB is not connected.', e);
+    db = client.db(); // <-- Assign db after connecting
+    console.log('Connected to MongoDB Atlas');
+  } catch (err) {
+    console.error('MongoDB connection error:', err);
   }
 }
+
+connectDB();
+
+app.get('/', (req, res) => {
+  res.send('OPD HealthCare Backend is running!');
+});
 
 app.get('/api/users', async (req, res) => {
   try {
@@ -134,11 +131,7 @@ app.post('/api/queues', async (req, res) => {
   }
 });
 
-async function startServer() {
-  await connectToDb();
-  app.listen(port, '0.0.0.0', () => {
-    console.log(`Server is running at http://localhost:${port}`);
-  });
-}
-
-startServer();
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
