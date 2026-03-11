@@ -26,27 +26,23 @@ app.use((req, res, next) => {
 
 // Nodemailer configuration
 const transporter = nodemailer.createTransport({
-  host: 'smtp.gmail.com',
-  port: 587,
-  secure: false, // use STARTTLS for port 587
+  service: 'gmail',
   auth: {
     user: process.env.GMAIL_USER,
     pass: process.env.GMAIL_PASS
-  },
-  tls: {
-    rejectUnauthorized: false,
-    minVersion: 'TLSv1.2'
-  },
-  family: 4, 
-  connectionTimeout: 30000, // Increase to 30 seconds
-  greetingTimeout: 30000,
-  socketTimeout: 30000
+  }
 });
 
-// Verify transporter on start
+// Verify transporter on start with detailed logging
+console.log('Checking email configuration...');
+if (!process.env.GMAIL_USER || !process.env.GMAIL_PASS) {
+  console.error('ERROR: GMAIL_USER or GMAIL_PASS is not set in Environment Variables!');
+}
+
 transporter.verify(function(error, success) {
   if (error) {
-    console.error('Nodemailer verification failed:', error);
+    console.error('Nodemailer verification failed:', error.message);
+    console.log('Note: Render may be blocking SMTP ports on the free tier.');
   } else {
     console.log('Nodemailer is ready to send emails');
   }
