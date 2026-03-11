@@ -44,12 +44,6 @@ async function connectDB() {
 
 connectDB();
 
-// Global error handler
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).json({ message: 'Internal Server Error', error: err.message });
-});
-
 app.get('/', (req, res) => {
   res.send('OPD HealthCare Backend is running!');
 });
@@ -179,6 +173,12 @@ app.post('/api/inquiry', async (req, res) => {
     console.error('Error sending email:', error);
     res.status(500).json({ message: 'Failed to send inquiry', error: error.message });
   }
+});
+
+// Global error handler (Must be after all routes)
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ message: 'Internal Server Error', error: err.message });
 });
 
 const PORT = process.env.PORT || 3000;
