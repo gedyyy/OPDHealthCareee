@@ -19,10 +19,15 @@ app.use((req, res, next) => {
 
 // Nodemailer configuration
 const transporter = nodemailer.createTransport({
-  service: 'gmail',
+  host: 'smtp.gmail.com',
+  port: 465,
+  secure: true, // use SSL
   auth: {
-    user: process.env.GMAIL_USER, // Your Gmail address
-    pass: process.env.GMAIL_PASS  // Your Gmail App Password
+    user: process.env.GMAIL_USER,
+    pass: process.env.GMAIL_PASS
+  },
+  tls: {
+    rejectUnauthorized: false // helps with some hosting provider blocks
   }
 });
 
