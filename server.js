@@ -27,19 +27,20 @@ app.use((req, res, next) => {
 // Nodemailer configuration
 const transporter = nodemailer.createTransport({
   host: 'smtp.gmail.com',
-  port: 465,
-  secure: true, 
+  port: 587,
+  secure: false, // use STARTTLS for port 587
   auth: {
     user: process.env.GMAIL_USER,
     pass: process.env.GMAIL_PASS
   },
   tls: {
-    rejectUnauthorized: false
+    rejectUnauthorized: false,
+    minVersion: 'TLSv1.2'
   },
-  family: 4, // Force IPv4 at the connection level
-  connectionTimeout: 20000,
-  greetingTimeout: 20000,
-  socketTimeout: 20000
+  family: 4, 
+  connectionTimeout: 30000, // Increase to 30 seconds
+  greetingTimeout: 30000,
+  socketTimeout: 30000
 });
 
 // Verify transporter on start
