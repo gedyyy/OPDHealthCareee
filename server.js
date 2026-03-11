@@ -4,8 +4,18 @@ const { MongoClient } = require('mongodb');
 const nodemailer = require('nodemailer');
 
 const app = express();
-app.use(cors());
+app.use(cors({
+  origin: '*', // Allows all origins for now to fix CORS during dev
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
 app.use(express.json());
+
+// Log incoming requests for debugging
+app.use((req, res, next) => {
+  console.log(`${req.method} ${req.url}`);
+  next();
+});
 
 // Nodemailer configuration
 const transporter = nodemailer.createTransport({
@@ -33,6 +43,12 @@ async function connectDB() {
 }
 
 connectDB();
+
+// Global error handler
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ message: 'Internal Server Error', error: err.message });
+});
 
 app.get('/', (req, res) => {
   res.send('OPD HealthCare Backend is running!');
@@ -166,6 +182,6 @@ app.post('/api/inquiry', async (req, res) => {
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`Server running on port ${PORT}`);
 });

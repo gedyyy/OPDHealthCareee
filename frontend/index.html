@@ -1922,6 +1922,13 @@ select, input { font-family: 'Instrument Sans', sans-serif; }
 
 <script>
 // ════════════════════════════════════════════════
+//  API CONFIGURATION
+// ════════════════════════════════════════════════
+// Change to 'http://localhost:3000' for local development
+// Change to BASE_URL + "' for production
+const BASE_URL = 'http://localhost:3000';
+
+// ════════════════════════════════════════════════
 //  SCREEN MANAGER
 // ════════════════════════════════════════════════
 function showScreen(id) {
@@ -1961,7 +1968,7 @@ let ACCOUNTS = {};
 
 async function fetchAccounts() {
   try {
-    const response = await fetch('https://opdhealthcareee.onrender.com/api/users');
+    const response = await fetch(BASE_URL + '/api/users');
     const users = await response.json();
     ACCOUNTS = users.reduce((acc, user) => {
       acc[user.email] = user;
@@ -1985,7 +1992,7 @@ let QUEUE_DB = {};     // { dept: [ queueEntry, ... ] }
 
 async function fetchQueueDb() {
   try {
-    const response = await fetch('https://opdhealthcareee.onrender.com/api/queues');
+    const response = await fetch(BASE_URL + '/api/queues');
     QUEUE_DB = await response.json();
     
     // Auto-update DEPT_DATA stats based on QUEUE_DB
@@ -2260,7 +2267,7 @@ async function addNotification(email, type, title, msg) {
   
   // Save to DB
   try {
-    await fetch('https://opdhealthcareee.onrender.com/api/patients', {
+    await fetch(BASE_URL + '/api/patients', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(ptRec)
@@ -2278,7 +2285,7 @@ let PATIENT_DB = {};
 
 async function fetchPatientDb() {
   try {
-    const response = await fetch('https://opdhealthcareee.onrender.com/api/patients');
+    const response = await fetch(BASE_URL + '/api/patients');
     PATIENT_DB = await response.json();
   } catch (error) {
     console.error('Failed to fetch Patient DB:', error);
@@ -2292,7 +2299,7 @@ let DEPT_DATA = {};
 
 async function fetchDeptData() {
   try {
-    const response = await fetch('https://opdhealthcareee.onrender.com/api/departments');
+    const response = await fetch(BASE_URL + '/api/departments');
     DEPT_DATA = await response.json();
   } catch (error) {
     console.error('Failed to fetch department data:', error);
@@ -2306,7 +2313,7 @@ let DEPT_DOCTORS = {};
 
 async function fetchDeptDoctors() {
   try {
-    const response = await fetch('https://opdhealthcareee.onrender.com/api/doctors');
+    const response = await fetch(BASE_URL + '/api/doctors');
     DEPT_DOCTORS = await response.json();
   } catch (error) {
     console.error('Failed to fetch department doctors:', error);
@@ -2530,7 +2537,7 @@ async function doctorStartQueue() {
   
   // Save Queue DB
   try {
-    await fetch('https://opdhealthcareee.onrender.com/api/queues', {
+    await fetch(BASE_URL + '/api/queues', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ dept, entries: q })
@@ -2565,7 +2572,7 @@ async function doctorNextQueue() {
 
   // Save Queue DB
   try {
-    await fetch('https://opdhealthcareee.onrender.com/api/queues', {
+    await fetch(BASE_URL + '/api/queues', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ dept, entries: q })
@@ -2589,7 +2596,7 @@ async function syncPatientAppointmentStatus(email, qNum, newStatus) {
     }
     // Save to DB
     try {
-      await fetch('https://opdhealthcareee.onrender.com/api/patients', {
+      await fetch(BASE_URL + '/api/patients', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(pt)
@@ -2612,7 +2619,7 @@ async function doctorAcceptPatient(dept, qNum) {
 
   // Save Queue DB
   try {
-    await fetch('https://opdhealthcareee.onrender.com/api/queues', {
+    await fetch(BASE_URL + '/api/queues', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ dept, entries: q })
@@ -2636,7 +2643,7 @@ async function doctorDeclinePatient(dept, qNum) {
 
   // Save Queue DB
   try {
-    await fetch('https://opdhealthcareee.onrender.com/api/queues', {
+    await fetch(BASE_URL + '/api/queues', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ dept, entries: q })
@@ -2669,7 +2676,7 @@ async function doctorServingPatient(dept, qNum) {
 
   // Save Queue DB
   try {
-    await fetch('https://opdhealthcareee.onrender.com/api/queues', {
+    await fetch(BASE_URL + '/api/queues', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ dept, entries: q })
@@ -2702,7 +2709,7 @@ async function doctorDonePatient(dept, qNum) {
 
   // Save Queue DB
   try {
-    await fetch('https://opdhealthcareee.onrender.com/api/queues', {
+    await fetch(BASE_URL + '/api/queues', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ dept, entries: q })
@@ -3105,7 +3112,7 @@ async function dismissNotif(idx) {
     rec.notifications.splice(idx, 1);
     // Save to DB
     try {
-      await fetch('https://opdhealthcareee.onrender.com/api/patients', {
+      await fetch(BASE_URL + '/api/patients', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(rec)
@@ -3211,7 +3218,7 @@ async function submitRegistration() {
 
   try {
     // 1. Save to users collection
-    const userRes = await fetch('https://opdhealthcareee.onrender.com/api/users', {
+    const userRes = await fetch(BASE_URL + '/api/users', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(newUser)
@@ -3223,7 +3230,7 @@ async function submitRegistration() {
     }
 
     // 2. Save to patients collection
-    await fetch('https://opdhealthcareee.onrender.com/api/patients', {
+    await fetch(BASE_URL + '/api/patients', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(newPatient)
@@ -3296,7 +3303,7 @@ async function submitBooking() {
     if (!QUEUE_DB[dept]) QUEUE_DB[dept] = [];
     QUEUE_DB[dept].push(newEntry);
     
-    await fetch('https://opdhealthcareee.onrender.com/api/queues', {
+    await fetch(BASE_URL + '/api/queues', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ dept, entries: QUEUE_DB[dept] })
@@ -3321,7 +3328,7 @@ async function submitBooking() {
       const newAppt = { date:fmtDate, time:time.split(' – ')[0], doctor, dept, reason:reason||'Consultation', ref:refNum, status:'pending', qNum };
       pt.upcoming.unshift(newAppt);
       
-      await fetch('https://opdhealthcareee.onrender.com/api/patients', {
+      await fetch(BASE_URL + '/api/patients', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(pt)
@@ -3389,22 +3396,28 @@ async function submitInquiry() {
   btn.innerText = 'Sending...';
 
   try {
-    const response = await fetch('https://opdhealthcareee.onrender.com/api/inquiry', {
+    const response = await fetch(BASE_URL + '/api/inquiry', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ name, email, msg })
     });
 
-    const result = await response.json();
-
     if (response.ok) {
+      const result = await response.json();
       alert(`✅ Thank you, ${name}! Your inquiry has been sent directly to our team.`);
       // Clear fields
       document.getElementById('inqName').value  = '';
       document.getElementById('inqEmail').value = '';
       document.getElementById('inqMsg').value   = '';
     } else {
-      throw new Error(result.message || 'Failed to send inquiry');
+      // If the response is not ok (e.g. 404), don't try to parse as JSON if it's not JSON
+      let errorMsg = 'Failed to send inquiry';
+      const contentType = response.headers.get("content-type");
+      if (contentType && contentType.indexOf("application/json") !== -1) {
+        const result = await response.json();
+        errorMsg = result.message || errorMsg;
+      }
+      throw new Error(errorMsg);
     }
   } catch (error) {
     console.error('Inquiry error:', error);
